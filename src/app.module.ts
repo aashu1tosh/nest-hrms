@@ -9,7 +9,6 @@ import { typeOrmConfigAsync } from './config/orm.config';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    // TypeOrmModule.forRootAsync(typeOrmConfigAsync),
     TypeOrmModule.forRootAsync(typeOrmConfigAsync as TypeOrmModuleAsyncOptions),
   ],
   controllers: [],
