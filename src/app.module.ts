@@ -2,10 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfigAsync } from './config/orm.config';
-import { AuthModule } from './modules/auth/auth.module';
 import { AdminModule } from './modules/admin/admin.module';
-import { AdminService } from './admin.service';
-
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -17,6 +15,6 @@ import { AdminService } from './admin.service';
     AdminModule,
   ],
   controllers: [],
-  providers: [AdminService],
+  providers: [],
 })
-export class AppModule { }
+export class AppModule {}
