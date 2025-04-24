@@ -15,7 +15,7 @@ export class AuthService {
     @InjectRepository(Auth) private authRepo: Repository<Auth>,
     private adminService: AdminService,
     private hashingService: HashingService,
-  ) {}
+  ) { }
 
   async create({ data }: { data: CreateAuthDTO }) {
     try {
@@ -54,5 +54,28 @@ export class AuthService {
       console.log(err, 'error coming');
       throw err;
     }
+  }
+
+
+  async checkEmail(email: string) {
+    const check = await this.authRepo
+      .createQueryBuilder('auth')
+      .where('auth.email = :email', { email })
+      .getCount();
+
+    if (check) throw new ForbiddenException(`${email} already in use`);
+
+    return check;
+  }
+
+  async checkPhone(phone: string) {
+    const check = await this.authRepo
+      .createQueryBuilder('auth')
+      .where('auth.phone = :phone', { phone })
+      .getCount();
+
+    if (check) throw new ForbiddenException(`${phone} already in use`);
+
+    return check;
   }
 }

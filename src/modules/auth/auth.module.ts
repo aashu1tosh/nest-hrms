@@ -10,5 +10,6 @@ import { HashingService } from './service/hashing/hashing.service';
   imports: [TypeOrmModule.forFeature([Auth]), AdminModule],
   controllers: [AuthController],
   providers: [AuthService, HashingService],
+  exports: [AuthService],
 })
-export class AuthModule {}
+export class AuthModule { }

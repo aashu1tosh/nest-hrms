@@ -1,20 +1,22 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { typeOrmConfigAsync } from './config/orm.config';
-import { AdminModule } from './modules/admin/admin.module';
-import { AuthModule } from './modules/auth/auth.module';
+import { typeOrmConfigAsync } from 'src/config/orm.config';
+import { AuthModule } from 'src/modules/auth/auth.module';
+import { AdminSeederService } from './service/admin.service';
+
 
 @Module({
+
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync(typeOrmConfigAsync),
-    AuthModule,
-    AdminModule,
+    AuthModule
   ],
-  controllers: [],
-  providers: [],
+  providers: [AdminSeederService],
+
+
 })
-export class AppModule { }
+export class AdminSeederModule { }
