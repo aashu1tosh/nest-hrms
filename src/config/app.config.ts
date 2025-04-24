@@ -4,7 +4,7 @@ import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import { AppModule } from 'src/app.module';
-import { UserAgentGuard } from 'src/common/guards/userAgent.guard';
+import { UserAgentGuard } from 'src/common/guard/userAgent.guard';
 
 export async function createApp(): Promise<INestApplication> {
     const app = await NestFactory.create(AppModule);

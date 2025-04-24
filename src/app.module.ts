@@ -1,7 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModule, TypeOrmModuleAsyncOptions } from '@nestjs/typeorm';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfigAsync } from './config/orm.config';
+import { AuthModule } from './modules/auth/auth.module';
+import { AdminModule } from './modules/admin/admin.module';
+import { AdminService } from './admin.service';
 
 
 @Module({
@@ -9,9 +12,11 @@ import { typeOrmConfigAsync } from './config/orm.config';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    TypeOrmModule.forRootAsync(typeOrmConfigAsync as TypeOrmModuleAsyncOptions),
+    TypeOrmModule.forRootAsync(typeOrmConfigAsync),
+    AuthModule,
+    AdminModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [AdminService],
 })
 export class AppModule { }
