@@ -6,6 +6,7 @@ import { AdminService } from 'src/modules/admin/service/admin.service';
 import { DataSource, Repository } from 'typeorm';
 import { CreateAuthDTO } from '../dto/auth.dto';
 import { Auth } from '../entity/auth.entity';
+import { HashingService } from './hashing/hashing.service';
 
 @Injectable()
 export class AuthService {
@@ -13,6 +14,7 @@ export class AuthService {
     private dataSource: DataSource,
     @InjectRepository(Auth) private authRepo: Repository<Auth>,
     private adminService: AdminService,
+    private hashingService: HashingService,
   ) {}
 
   async create({ data }: { data: CreateAuthDTO }) {
@@ -41,7 +43,7 @@ export class AuthService {
         const auth = new Auth();
         auth.email = data.email;
         auth.role = (data.role as Role) ?? Role.ADMIN;
-        auth.password = data.password;
+        auth.password = await this.hashingService(data.password);
         auth.admin = admin;
         await manager.save(auth);
         return auth;
