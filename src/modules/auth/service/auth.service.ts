@@ -1,11 +1,14 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from 'src/constant/enum';
 import { Message } from 'src/constant/message';
 import { AdminService } from 'src/modules/admin/service/admin.service';
 import { DataSource, Repository } from 'typeorm';
-import { CreateAuthDTO } from '../dto/auth.dto';
+import { CreateAuthDTO, LoginDTO } from '../dto/auth.dto';
 import { Auth } from '../entity/auth.entity';
+import { AuthTokens, UserPayload } from '../interface/auth.interface';
 import { HashingService } from './hashing/hashing.service';
 
 @Injectable()
@@ -15,6 +18,8 @@ export class AuthService {
     @InjectRepository(Auth) private authRepo: Repository<Auth>,
     private adminService: AdminService,
     private hashingService: HashingService,
+    private jwtService: JwtService,
+    private configService: ConfigService,
   ) { }
 
   async create({ data }: { data: CreateAuthDTO }) {
@@ -56,6 +61,43 @@ export class AuthService {
     }
   }
 
+  async login({ data }: { data: LoginDTO }): Promise<AuthTokens> {
+    const check = await this.authRepo
+      .createQueryBuilder('auth')
+      .select(['auth.id', 'auth.email', 'auth.password'])
+      .where('auth.email = :email', { email: data.email })
+      .getOne();
+
+    console.log("🚀 ~ AuthService ~ login ~ check:", check)
+    if (!check) throw new ForbiddenException(Message.invalidCredentials);
+
+    const isMatch = await this.hashingService.compare(
+      data.password,
+      check.password,
+    );
+    console.log("🚀 ~ AuthService ~ login ~ isMatch:", isMatch)
+
+    if (!isMatch) throw new ForbiddenException(Message.invalidCredentials);
+    delete (check as Partial<typeof check>).password;
+
+    const payload: UserPayload = {
+      id: check.id,
+      role: check.role,
+    };
+    return this.generateAccessAndRefreshToken(payload);
+  }
+
+  generateAccessAndRefreshToken(
+    payload: UserPayload,
+  ): AuthTokens {
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: this.configService.get<string>('JWT_ACCESS_TOKEN_EXPIRATION'),
+    });
+    const refreshToken = this.jwtService.sign(payload, {
+      expiresIn: this.configService.get<string>('JWT_REFRESH_TOKEN_EXPIRATION'),
+    });
+    return { accessToken, refreshToken };
+  }
 
   async checkEmail(email: string) {
     const check = await this.authRepo

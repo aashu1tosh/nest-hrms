@@ -32,3 +32,13 @@ export class CreateAuthDTO {
   @Type(() => CreateAdminDTO)
   admin: CreateAdminDTO;
 }
+
+export class LoginDTO {
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @IsNotEmpty()
+  @MinLength(8)
+  password: string;
+}
