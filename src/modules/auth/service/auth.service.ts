@@ -43,7 +43,7 @@ export class AuthService {
         const auth = new Auth();
         auth.email = data.email;
         auth.role = (data.role as Role) ?? Role.ADMIN;
-        auth.password = await this.hashingService(data.password);
+        auth.password = await this.hashingService.hash(data.password);
         auth.admin = admin;
         await manager.save(auth);
         return auth;
