@@ -1,12 +1,5 @@
-import { Type } from 'class-transformer';
-import {
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { IsNotBlank } from 'src/common/dto/isNotBlank.dto';
-import { CreateAuthDTO } from 'src/modules/auth/dto/auth.dto';
 
 export class CreateAdminDTO {
   @IsNotEmpty()
@@ -20,8 +13,4 @@ export class CreateAdminDTO {
   @IsNotEmpty()
   @IsNotBlank()
   lastName: string;
-
-  @ValidateNested()
-  @Type(() => CreateAuthDTO)
-  auth: CreateAuthDTO;
 }

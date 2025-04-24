@@ -4,11 +4,12 @@ import {
   IsEnum,
   IsNotEmpty,
   IsOptional,
-  IsPhoneNumber,
+  IsString,
   MinLength,
   ValidateNested,
 } from 'class-validator';
 import { Role } from 'src/constant/enum';
+import { CreateAdminDTO } from 'src/modules/admin/dto/admin.dto';
 
 export class CreateAuthDTO {
   @IsEmail()
@@ -20,7 +21,7 @@ export class CreateAuthDTO {
   password: string;
 
   @IsOptional()
-  @IsPhoneNumber()
+  @IsString()
   phone?: string;
 
   @IsNotEmpty()
@@ -28,6 +29,6 @@ export class CreateAuthDTO {
   role?: Role;
 
   @ValidateNested()
-  @Type(() => CreateAuthDTO)
-  auth: CreateAuthDTO;
+  @Type(() => CreateAdminDTO)
+  admin: CreateAdminDTO;
 }
