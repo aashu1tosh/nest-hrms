@@ -27,5 +27,5 @@ export class Auth extends Base {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'admin_id' })
-  admin: Admin | null;
+  admin: Admin;
 }
