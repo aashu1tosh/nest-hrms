@@ -23,42 +23,38 @@ export class AuthService {
   ) { }
 
   async create({ data }: { data: CreateAuthDTO }) {
-    try {
-      const check = await this.authRepo
-        .createQueryBuilder('auth')
-        .where('auth.email = :email', { email: data.email })
-        .getCount();
+    const check = await this.authRepo
+      .createQueryBuilder('auth')
+      .where('auth.email = :email', { email: data.email })
+      .getCount();
 
-      if (check) throw new ForbiddenException(`${data.email} already in use`);
+    if (check) throw new ForbiddenException(`${data.email} already in use`);
 
-      const checkPhone = await this.authRepo
-        .createQueryBuilder('auth')
-        .where('auth.phone = :phone', { phone: data.phone })
-        .getCount();
+    const checkPhone = await this.authRepo
+      .createQueryBuilder('auth')
+      .where('auth.phone = :phone', { phone: data.phone })
+      .getCount();
 
-      if (checkPhone)
-        throw new ForbiddenException(`${data.phone} already in use`);
+    if (checkPhone)
+      throw new ForbiddenException(`${data.phone} already in use`);
 
-      await this.dataSource.transaction(async (manager) => {
-        const admin = await this.adminService.create(
-          { data: data.admin },
-          manager,
-        );
+    await this.dataSource.transaction(async (manager) => {
+      const admin = await this.adminService.create(
+        { data: data.admin },
+        manager,
+      );
 
-        const auth = new Auth();
-        auth.email = data.email;
-        auth.role = (data.role as Role) ?? Role.ADMIN;
-        auth.password = await this.hashingService.hash(data.password);
-        auth.admin = admin;
-        await manager.save(auth);
-        return auth;
-      });
+      const auth = new Auth();
+      auth.email = data.email;
+      auth.role = (data.role as Role) ?? Role.ADMIN;
+      auth.password = await this.hashingService.hash(data.password);
+      auth.admin = admin;
+      await manager.save(auth);
+      return auth;
+    });
 
-      return Message.created;
-    } catch (err) {
-      console.log(err, 'error coming');
-      throw err;
-    }
+    return Message.created;
+
   }
 
   async login({ data }: { data: LoginDTO }): Promise<AuthTokens> {
@@ -68,14 +64,12 @@ export class AuthService {
       .where('auth.email = :email', { email: data.email })
       .getOne();
 
-    console.log("🚀 ~ AuthService ~ login ~ check:", check)
     if (!check) throw new ForbiddenException(Message.invalidCredentials);
 
     const isMatch = await this.hashingService.compare(
       data.password,
       check.password,
     );
-    console.log("🚀 ~ AuthService ~ login ~ isMatch:", isMatch)
 
     if (!isMatch) throw new ForbiddenException(Message.invalidCredentials);
     delete (check as Partial<typeof check>).password;

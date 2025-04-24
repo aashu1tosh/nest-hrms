@@ -18,9 +18,6 @@ export class AuthController {
   async login(@Body() data: LoginDTO, @Res({ passthrough: true }) res: Response) {
     const { accessToken, refreshToken } = await this.authService.login({ data });
 
-    console.log("🚀 ~ AuthController ~ login ~ refreshToken:", refreshToken)
-    console.log("🚀 ~ AuthController ~ login ~ accessToken:", accessToken)
-
     // Set access token as HTTP-only cookie
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
