@@ -63,8 +63,6 @@ export class AuthService {
       .where('auth.email = :email', { email })
       .getCount();
 
-    if (check) throw new ForbiddenException(`${email} already in use`);
-
     return check;
   }
 
@@ -73,8 +71,6 @@ export class AuthService {
       .createQueryBuilder('auth')
       .where('auth.phone = :phone', { phone })
       .getCount();
-
-    if (check) throw new ForbiddenException(`${phone} already in use`);
 
     return check;
   }
