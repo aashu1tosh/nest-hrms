@@ -10,32 +10,25 @@ export class AuthService {
   constructor(@InjectRepository(Auth) private authRepo: Repository<Auth>) {}
 
   async create({ data }: { data: CreateAuthDTO }) {
-    try {
-      console.log(data);
+    const check = await this.authRepo
+      .createQueryBuilder('auth')
+      .where('auth.email = :email', { email: data.email })
+      .getCount();
 
-      const check = await this.authRepo
-        .createQueryBuilder('auth')
-        .where('auth.email = :email', { email: data.email })
-        .getCount();
+    if (check) throw new ForbiddenException(`${data.email} already in use`);
 
-      if (check) throw new ForbiddenException(`${data.email} already in use`);
+    const checkPhone = await this.authRepo
+      .createQueryBuilder('auth')
+      .where('auth.phone = :phone', { phone: data.phone })
+      .getCount();
 
-      const checkPhone = await this.authRepo
-        .createQueryBuilder('auth')
-        .where('auth.phone = :phone', { phone: data.phone })
-        .getCount();
+    if (checkPhone)
+      throw new ForbiddenException(`${data.phone} already in use`);
 
-      if (checkPhone)
-        throw new ForbiddenException(`${data.phone} already in use`);
-
-      const auth = new Auth();
-      auth.email = data.email;
-      auth.role = (data.role as Role) ?? Role.ADMIN;
-      auth.password = data.password;
-      await auth.save();
-    } catch (err) {
-      console.log(err, 'check ');
-      throw err;
-    }
+    const auth = new Auth();
+    auth.email = data.email;
+    auth.role = (data.role as Role) ?? Role.ADMIN;
+    auth.password = data.password;
+    await auth.save();
   }
 }
