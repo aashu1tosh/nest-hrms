@@ -1,18 +1,17 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import { AppModule } from 'src/app.module';
-import { UserAgentGuard } from 'src/common/guard/userAgent.guard';
 
 export async function createApp(): Promise<INestApplication> {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors();
 
-  const configService = app.get(ConfigService);
-  app.useGlobalGuards(new UserAgentGuard(configService));
+  // I used this app module to create a global guard
+  // const configService = app.get(ConfigService);
+  // app.useGlobalGuards(new UserAgentGuard(configService));
 
   app.use(cookieParser());
   app.use(morgan('dev'));
