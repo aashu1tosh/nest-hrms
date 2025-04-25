@@ -86,9 +86,11 @@ export class AuthService {
   ): AuthTokens {
     const accessToken = this.jwtService.sign(payload, {
       expiresIn: this.configService.get<string>('JWT_ACCESS_TOKEN_EXPIRATION'),
+      secret: this.configService.get<string>('JWT_ACCESS_TOKEN_SECRET'),
     });
     const refreshToken = this.jwtService.sign(payload, {
       expiresIn: this.configService.get<string>('JWT_REFRESH_TOKEN_EXPIRATION'),
+      secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
     });
     return { accessToken, refreshToken };
   }
@@ -113,7 +115,13 @@ export class AuthService {
       const payload = this.jwtService.verify<IJwtPayload>(refreshToken, {
         secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
       });
-      return this.generateAccessAndRefreshToken(payload);
+
+      if (!payload) throw new UnauthorizedException(Message.notAuthorized);
+
+      return this.generateAccessAndRefreshToken({
+        id: payload?.id,
+        role: payload?.role,
+      });
     } catch {
       throw new UnauthorizedException(Message.tokenExpired);
     }

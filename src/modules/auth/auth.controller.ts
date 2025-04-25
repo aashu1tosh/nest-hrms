@@ -43,7 +43,6 @@ export class AuthController {
   @Authentication()
   @Authorization([Role.SUDO_ADMIN])
   async create(@Body() data: CreateAuthDTO) {
-    // console.log('data', data);
     await this.authService.create({ data });
     return successResponse(Message.created);
   }
@@ -51,12 +50,10 @@ export class AuthController {
   @Post('/refresh-token')
   @HttpCode(HttpStatus.OK)
   refreshToken(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    //
     const refreshToken = req.cookies.refreshToken as string
     if (!refreshToken) throw new UnauthorizedException(Message.notAuthorized)
 
     const { accessToken, refreshToken: newRefreshToken } = this.authService.refreshToken({ refreshToken });
-    // Set new refresh token as HTTP-only cookie
 
     // Set access token as HTTP-only cookie
     res.cookie('accessToken', accessToken, {

@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 
@@ -16,11 +16,10 @@ export class UserAgentGuard implements CanActivate {
             if (!userAgent.includes('Mozilla')) {
                 // If User-Agent doesn't contain Mozilla, check x-api-key
                 if (request.headers['x-api-key'] !== this.configService.get('API_KEY')) {
-                    throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+                    throw new ForbiddenException('Forbidden: Invalid User-Agent');
                 }
             }
         }
         return true;
-
     }
 }

@@ -1,24 +1,23 @@
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
+import { Role } from 'src/constant/enum';
 import { Message } from 'src/constant/message';
-import { Authorization } from '../decorator/authorization.decorator';
+import { ROLES_KEY } from '../decorator/authorization.decorator';
 
 @Injectable()
 export class AuthorizationGuard implements CanActivate {
     constructor(private reflector: Reflector) { }
 
     canActivate(context: ExecutionContext) {
-        console.log('Authorization decorator called');
 
-        const requiredRoles = this.reflector.getAllAndMerge(Authorization, [
-            context.getClass(),
+        const requiredRoles = this.reflector.get<Role[]>(ROLES_KEY,
             context.getHandler(),
-        ]);
-        if (requiredRoles.length === 0) return true; //if no roles are specified then pass through the guard
+        );
+        if (!requiredRoles || requiredRoles.length === 0) return true; //if no roles are specified then pass through the guard
         const { user } = context.switchToHttp().getRequest<Request>();
 
-        console.log("🚀 ~ AuthorizationGuard ~ canActivate ~ user:", user)
+        if (!user) throw new ForbiddenException(Message.notAuthorized);
         if (!requiredRoles.some((role) => user.role?.includes(role))) throw new ForbiddenException(Message.notPermitted);
         return true;
     }
