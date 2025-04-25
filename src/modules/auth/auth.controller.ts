@@ -43,6 +43,7 @@ export class AuthController {
   @Authentication()
   @Authorization([Role.SUDO_ADMIN])
   async create(@Body() data: CreateAuthDTO) {
+    // console.log('data', data);
     await this.authService.create({ data });
     return successResponse(Message.created);
   }
@@ -74,6 +75,15 @@ export class AuthController {
     });
 
     return successResponse('Authentication token refreshed successfully');
+  }
+
+  @Post('/logout')
+  @HttpCode(HttpStatus.OK)
+  @Authentication()
+  logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+    return successResponse(Message.logoutSuccessfully);
   }
 }
 

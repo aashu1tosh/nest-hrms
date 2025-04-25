@@ -9,6 +9,8 @@ export class AuthorizationGuard implements CanActivate {
     constructor(private reflector: Reflector) { }
 
     canActivate(context: ExecutionContext) {
+        console.log('Authorization decorator called');
+
         const requiredRoles = this.reflector.getAllAndMerge(Authorization, [
             context.getClass(),
             context.getHandler(),
@@ -16,7 +18,8 @@ export class AuthorizationGuard implements CanActivate {
         if (requiredRoles.length === 0) return true; //if no roles are specified then pass through the guard
         const { user } = context.switchToHttp().getRequest<Request>();
 
-        if (!requiredRoles.some((role) => user.role?.includes(role))) new ForbiddenException(Message.notPermitted);
+        console.log("🚀 ~ AuthorizationGuard ~ canActivate ~ user:", user)
+        if (!requiredRoles.some((role) => user.role?.includes(role))) throw new ForbiddenException(Message.notPermitted);
         return true;
     }
 }

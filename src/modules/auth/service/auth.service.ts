@@ -60,7 +60,7 @@ export class AuthService {
   async login({ data }: { data: LoginDTO }): Promise<AuthTokens> {
     const check = await this.authRepo
       .createQueryBuilder('auth')
-      .select(['auth.id', 'auth.email', 'auth.password'])
+      .select(['auth.id', 'auth.email', 'auth.password', 'auth.role'])
       .where('auth.email = :email', { email: data.email })
       .getOne();
 
