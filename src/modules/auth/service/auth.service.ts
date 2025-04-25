@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,7 +8,7 @@ import { AdminService } from 'src/modules/admin/service/admin.service';
 import { DataSource, Repository } from 'typeorm';
 import { CreateAuthDTO, LoginDTO } from '../dto/auth.dto';
 import { Auth } from '../entity/auth.entity';
-import { AuthTokens, UserPayload } from '../interface/auth.interface';
+import { AuthTokens, IJwtPayload } from '../interface/auth.interface';
 import { HashingService } from './hashing/hashing.service';
 
 @Injectable()
@@ -74,7 +74,7 @@ export class AuthService {
     if (!isMatch) throw new ForbiddenException(Message.invalidCredentials);
     delete (check as Partial<typeof check>).password;
 
-    const payload: UserPayload = {
+    const payload: IJwtPayload = {
       id: check.id,
       role: check.role,
     };
@@ -82,7 +82,7 @@ export class AuthService {
   }
 
   generateAccessAndRefreshToken(
-    payload: UserPayload,
+    payload: IJwtPayload,
   ): AuthTokens {
     const accessToken = this.jwtService.sign(payload, {
       expiresIn: this.configService.get<string>('JWT_ACCESS_TOKEN_EXPIRATION'),
@@ -91,6 +91,32 @@ export class AuthService {
       expiresIn: this.configService.get<string>('JWT_REFRESH_TOKEN_EXPIRATION'),
     });
     return { accessToken, refreshToken };
+  }
+
+  verifyAccessToken(token: string): IJwtPayload {
+    try {
+      const payload = this.jwtService.verify<IJwtPayload>(token, {
+        secret: this.configService.get<string>('JWT_ACCESS_TOKEN_SECRET'),
+      });
+      return payload;
+    } catch (error: any) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      if (error.name === 'TokenExpiredError') {
+        throw new UnauthorizedException('TOKEN_EXPIRED');
+      }
+      throw new UnauthorizedException(Message.notAuthorized);
+    }
+  }
+
+  refreshToken({ refreshToken }: { refreshToken: string }) {
+    try {
+      const payload = this.jwtService.verify<IJwtPayload>(refreshToken, {
+        secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
+      });
+      return this.generateAccessAndRefreshToken(payload);
+    } catch {
+      throw new UnauthorizedException(Message.tokenExpired);
+    }
   }
 
   async checkEmail(email: string) {

@@ -1,6 +1,6 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Res } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post, Req, Res, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import { Environment } from 'src/constant/enum';
 import { Message } from 'src/constant/message';
 import { successResponse } from 'src/helper/successResponse';
@@ -41,6 +41,35 @@ export class AuthController {
   async create(@Body() data: CreateAuthDTO) {
     await this.authService.create({ data });
     return successResponse(Message.created);
+  }
+
+  @Post('/refresh-token')
+  @HttpCode(HttpStatus.OK)
+  refreshToken(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    //
+    const refreshToken = req.cookies.refreshToken as string
+    if (!refreshToken) throw new UnauthorizedException(Message.notAuthorized)
+
+    const { accessToken, refreshToken: newRefreshToken } = this.authService.refreshToken({ refreshToken });
+    // Set new refresh token as HTTP-only cookie
+
+    // Set access token as HTTP-only cookie
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: this.configService.get<string>('NODE_ENV') === Environment.PRODUCTION, // Only send over HTTPS in production
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000, // 15 minutes in milliseconds
+    });
+
+    // Set refresh token as HTTP-only cookie
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: this.configService.get<string>('NODE_ENV') === Environment.PRODUCTION,
+      sameSite: 'strict',
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds
+    });
+
+    return successResponse('Authentication token refreshed successfully');
   }
 }
 

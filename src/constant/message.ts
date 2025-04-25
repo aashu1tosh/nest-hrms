@@ -13,8 +13,8 @@ export const Message = {
   deleted: 'Successfully deleted',
   created: 'Successfully created',
   error: 'Error occurred',
-  notAuthorized: 'You are not authorized for this task',
-  tokenExpire: 'Token expired, Please sign in again',
+  notAuthorized: 'You are not authorized',
+  tokenExpired: 'Token expired, Please sign in again',
   fetched: 'Successfully fetched data',
   isBlocked: 'This account is blocked',
   isUnBlocked: 'This account is unblocked',
@@ -25,7 +25,7 @@ export const Message = {
   otpExpired: 'OTP time out',
   invalidOTP: 'Invalid OTP',
   validOTP: 'Valid OTP',
-  unsuccessfull: 'Task failed',
+  unsuccessful: 'Task failed',
 };
 export const getNotFoundMessage = (title: string) => {
   return `${title} not found`;
