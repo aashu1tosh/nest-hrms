@@ -26,6 +26,7 @@ export const Message = {
   invalidOTP: 'Invalid OTP',
   validOTP: 'Valid OTP',
   unsuccessful: 'Task failed',
+  notPermitted: 'You are not allowed to perform this action',
 };
 export const getNotFoundMessage = (title: string) => {
   return `${title} not found`;

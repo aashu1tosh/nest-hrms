@@ -1,2 +1,2 @@
 import { Reflector } from '@nestjs/core';
-export const authorization = Reflector.createDecorator<string[]>();
+export const Authorization = Reflector.createDecorator<string[]>();

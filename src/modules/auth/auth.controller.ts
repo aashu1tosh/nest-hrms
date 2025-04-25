@@ -1,7 +1,9 @@
 import { Body, Controller, HttpCode, HttpStatus, Post, Req, Res, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
-import { Environment } from 'src/constant/enum';
+import { Authentication } from 'src/common/decorator/authentication.decorator';
+import { Authorization } from 'src/common/decorator/authorization.decorator';
+import { Environment, Role } from 'src/constant/enum';
 import { Message } from 'src/constant/message';
 import { successResponse } from 'src/helper/successResponse';
 import { CreateAuthDTO, LoginDTO } from './dto/auth.dto';
@@ -38,6 +40,8 @@ export class AuthController {
   }
 
   @Post('/register')
+  @Authentication()
+  @Authorization([Role.SUDO_ADMIN])
   async create(@Body() data: CreateAuthDTO) {
     await this.authService.create({ data });
     return successResponse(Message.created);
