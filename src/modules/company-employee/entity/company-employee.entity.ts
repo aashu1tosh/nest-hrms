@@ -14,7 +14,7 @@ export class CompanyEmployee extends Base {
     middleName: string
 
 
-    @Column({ name: 'first_name' })
+    @Column({ name: 'last_name' })
     lastName: string
 
     @Column({ name: 'phone_number', nullable: true })
