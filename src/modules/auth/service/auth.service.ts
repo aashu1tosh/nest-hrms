@@ -114,10 +114,10 @@ export class AuthService {
       .addSelect(['companyAdmin.id'])
       .leftJoin('auth.companyEmployee', 'companyEmployee')
       .addSelect(['companyEmployee.id'])
-      .leftJoin('companyEmployee.company', 'company')
-      .addSelect(['company.id'])
-      .leftJoin('companyAdmin.company', 'company')
-      .addSelect(['company.id'])
+      .leftJoin('companyEmployee.company', 'companyFromEmployee')
+      .addSelect(['companyFromEmployee.id'])
+      .leftJoin('companyAdmin.company', 'companyFromAdmin')
+      .addSelect(['companyFromAdmin.id'])
       .getOne()
 
 
