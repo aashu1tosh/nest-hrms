@@ -18,19 +18,22 @@ export class CompanyAdminService {
 
     async create({ data }: { data: CreateCompanyAdminDTO }) {
         await this.dataSource.transaction(async (manager) => {
-            const auth = await this.authService.createAuth(
-                {
-                    data: data.auth
-                }
-                , manager)
+
+
             const companyAdmin = new CompanyAdmin();
             companyAdmin.firstName = data.firstName;
             companyAdmin.middleName = data.middleName;
             companyAdmin.lastName = data.lastName;
             companyAdmin.company = await this.companyService.checkCompany(data.companyId);
-            companyAdmin.auth = auth;
 
-            await manager.save(companyAdmin);
+            const admin = await manager.save(companyAdmin);
+
+            await this.authService.createAuth(
+                {
+                    data: data.auth,
+                    companyAdmin: admin
+                }
+                , manager)
         }
         );
         return Message.created;

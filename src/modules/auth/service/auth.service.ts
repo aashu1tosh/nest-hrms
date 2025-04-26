@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from 'src/constant/enum';
 import { Message } from 'src/constant/message';
 import { AdminService } from 'src/modules/admin/service/admin.service';
+import { CompanyAdmin } from 'src/modules/company-admin/entity/company-admin.entity';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { CreateAuthAdminDTO, CreateAuthDTO, LoginDTO } from '../dto/auth.dto';
 import { Auth } from '../entity/auth.entity';
@@ -60,21 +61,22 @@ export class AuthService {
 
   }
 
-  async createAuth({ data }: { data: CreateAuthDTO }, manager: EntityManager) {
+  async createAuth({ data, companyAdmin }: { data: CreateAuthDTO, companyAdmin: CompanyAdmin }, manager: EntityManager) {
 
     if (data.role === Role.SUDO_ADMIN || data.role === Role.ADMIN) throw new ForbiddenException(Message.notAuthorized);
 
     const check = await this.authRepo
       .createQueryBuilder('auth')
       .where('auth.email = :email', { email: data.email })
-      .getCount();
+      .getOne();
 
     if (check) throw new ForbiddenException(`${data.email} already in use`);
 
+    console.log("🚀 ~ AuthService ~ createAuth ~ check:", check)
     const checkPhone = await this.authRepo
       .createQueryBuilder('auth')
       .where('auth.phone = :phone', { phone: data.phone })
-      .getCount();
+      .getOne();
 
     if (checkPhone)
       throw new ForbiddenException(`${data.phone} already in use`);
@@ -83,8 +85,10 @@ export class AuthService {
     auth.email = data.email;
     auth.role = data.role;
     auth.password = await this.hashingService.hash(data.password);
-    await manager.save(auth);
-    return auth;
+    auth.companyAdmin = companyAdmin;
+    const heeh = await manager.save(auth);
+    console.log("🚀 ~ AuthService ~ createAuth ~ heeh:", heeh)
+    return heeh
   }
 
   async login({ data }: { data: LoginDTO }): Promise<AuthTokens> {
