@@ -18,8 +18,10 @@ export class CompanyEmployeeController {
     ) { }
 
     @Post()
-    async create(@Body() data: CreateEmployeeDTO) {
-        await this.companyEmployeeService.create({ data });
+    async create(@Body() data: CreateEmployeeDTO, @User('companyId') companyId: string) {
+        console.log('companyId see waht this is', companyId)
+        if (!companyId) throw new BadRequestException('Company is Required')
+        await this.companyEmployeeService.create({ data, companyId });
         return successResponse(Message.created);
     }
 
@@ -29,6 +31,7 @@ export class CompanyEmployeeController {
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
         @Query('perPage', new DefaultValuePipe(10), ParseIntPipe) perPage: number,
         @Query('search') search?: string,) {
+        console.log('companyId', companyId)
         const response = await this.companyEmployeeService.getAll({
             page,
             perPage,

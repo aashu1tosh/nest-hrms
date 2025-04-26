@@ -17,9 +17,11 @@ export class CompanyEmployeeService {
         private companyService: CompanyService
     ) { }
 
-    async create({ data, companyId }: { data: CreateEmployeeDTO, companyId?: string }) {
+    async create({ data, companyId }: { data: CreateEmployeeDTO, companyId: string }) {
 
+        console.log('companyId', companyId)
         if (!companyId) throw new BadRequestException('Company is Required')
+
         await this.dataSource.transaction(async (manager) => {
             const companyEmployee = new CompanyEmployee()
             companyEmployee.firstName = data.firstName
@@ -57,18 +59,20 @@ export class CompanyEmployeeService {
 
         if (!companyId) throw new BadRequestException('Company is Required')
         const query = this.companyEmployeeRepo.createQueryBuilder('employee')
-            .select(['employee.id', 'employee.firstName', 'employee.middleName', 'employee.lastName', 'employee.phone', 'employee.status'])
+            .select(['employee.id', 'employee.firstName', 'employee.middleName', 'employee.lastName', 'employee.phone', 'employee.status', 'employee.createdAt'])
             .leftJoin('employee.auth', 'auth')
             .addSelect(['auth.email', 'auth.phone'])
+            .leftJoin('employee.company', 'company')
+            .addSelect(['company.id'])
 
-        if (search) {
+        if (search)
             query.where('employee.firstName LIKE :search', { search: `%${search}%` })
                 .orWhere('employee.middleName LIKE :search', { search: `%${search}%` })
                 .orWhere('employee.lastName LIKE :search', { search: `%${search}%` });
-        }
+
 
         return await query.skip((page - 1) * perPage)
-            .where('employee.companyId = :companyId', { companyId })
+            .where('company.id = :companyId', { companyId })
             .take(perPage)
             .orderBy('employee.createdAt', 'DESC')
             .getManyAndCount();

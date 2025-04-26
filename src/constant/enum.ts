@@ -3,6 +3,7 @@ export enum Role {
     ADMIN = 'ADMIN',
     COMPANY_SUPER_ADMIN = 'COMPANY_SUPER_ADMIN',
     COMPANY_ADMIN = 'COMPANY_ADMIN',
+    COMPANY_EMPLOYEE = 'COMPANY_EMPLOYEE',
 }
 
 export enum Environment {

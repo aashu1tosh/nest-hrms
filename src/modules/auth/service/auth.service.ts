@@ -118,8 +118,10 @@ export class AuthService {
       .addSelect(['companyFromEmployee.id'])
       .leftJoin('companyAdmin.company', 'companyFromAdmin')
       .addSelect(['companyFromAdmin.id'])
+      .where('auth.id = :id', { id: check.id })
       .getOne()
 
+    console.log("🚀 ~ AuthService ~ login ~ auth:", auth)
 
     const payload: IJwtPayload = {
       id: auth?.id,
