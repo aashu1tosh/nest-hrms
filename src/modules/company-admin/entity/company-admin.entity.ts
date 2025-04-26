@@ -1,9 +1,10 @@
 import Base from 'src/common/entity/base.entity'
 import { Auth } from 'src/modules/auth/entity/auth.entity'
-import { Column, Entity, OneToOne } from 'typeorm'
+import { Company } from 'src/modules/company/entity/company.entity'
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm'
 
-@Entity('admin')
-export class Admin extends Base {
+@Entity('company_admin')
+export class CompanyAdmin extends Base {
     @Column({ name: 'first_name' })
     firstName: string
 
@@ -13,11 +14,12 @@ export class Admin extends Base {
     @Column({ name: 'last_name' })
     lastName: string
 
-    //   @OneToMany(() => Media, (media) => media.admin)
-    //   media: Media[]
-
     @OneToOne(() => Auth, (auth) => auth.admin, {
         cascade: true,
     })
     auth: Auth
+
+    @ManyToOne(() => Company, (company) => company.companyAdmin)
+    @JoinColumn({ name: 'company_id' })
+    company: Company
 }
