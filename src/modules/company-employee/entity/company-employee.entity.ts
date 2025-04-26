@@ -2,7 +2,8 @@
 import Base from 'src/common/entity/base.entity';
 import { EmployeeStatus } from 'src/constant/enum';
 import { Auth } from 'src/modules/auth/entity/auth.entity';
-import { Column, Entity, OneToOne } from 'typeorm';
+import { Company } from 'src/modules/company/entity/company.entity';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 
 @Entity('company_employee')
 export class CompanyEmployee extends Base {
@@ -30,5 +31,9 @@ export class CompanyEmployee extends Base {
         cascade: true,
     })
     auth: Auth
+
+    @ManyToOne(() => Company, (company) => company.companyEmployee)
+    @JoinColumn({ name: 'company_id' })
+    company: Company;
 }
 
