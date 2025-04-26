@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Message } from 'src/constant/message';
 import { AuthService } from 'src/modules/auth/service/auth.service';
 import { DataSource, Repository } from 'typeorm';
-import { CreateEmployeeDTO } from '../dto/company-employee.dto';
+import { CreateEmployeeDTO, UpdateEmployeeDTO } from '../dto/company-employee.dto';
 import { CompanyEmployee } from '../entity/company-employee.entity';
 
 @Injectable()
@@ -45,12 +45,16 @@ export class CompanyEmployeeService {
     async getAll({
         page = 1,
         perPage = 10,
-        search
+        search,
+        companyId
     }: {
         page?: number;
         perPage?: number;
         search?: string;
+        companyId?: string;
     }): Promise<[CompanyEmployee[], number]> {
+
+        if (!companyId) throw new BadRequestException('Company is Required')
         const query = this.companyEmployeeRepo.createQueryBuilder('employee')
             .select(['employee.id', 'employee.firstName', 'employee.middleName', 'employee.lastName', 'employee.phone', 'employee.status'])
             .leftJoin('employee.auth', 'auth')
@@ -63,17 +67,24 @@ export class CompanyEmployeeService {
         }
 
         return await query.skip((page - 1) * perPage)
+            .where('employee.companyId = :companyId', { companyId })
             .take(perPage)
             .orderBy('employee.createdAt', 'DESC')
             .getManyAndCount();
     }
 
-    async getById(id: string): Promise<CompanyEmployee> {
+    async getById({ id, companyId }: { id: string, companyId: string }): Promise<CompanyEmployee> {
+
+        if (!companyId) throw new BadRequestException('Company is Required')
+
         const data = await this.companyEmployeeRepo.createQueryBuilder('employee')
             .select(['employee.id', 'employee.firstName', 'employee.middleName', 'employee.lastName', 'employee.phone', 'employee.status'])
             .leftJoin('employee.auth', 'auth')
             .addSelect(['auth.email', 'auth.phone'])
+            .leftJoin('employee.company', 'company')
+            .addSelect(['company.id'])
             .where('employee.id = :id', { id })
+            .andWhere('company.id = :companyId', { companyId })
             .getOne();
 
         if (!data) throw new BadRequestException(Message.notFound);
@@ -81,8 +92,10 @@ export class CompanyEmployeeService {
         return data;
     }
 
-    async update(id: string, data: CreateEmployeeDTO) {
-        const check = await this.getById(id)
+    async update({ id, data, companyId }: { id: string, data: UpdateEmployeeDTO, companyId?: string }) {
+
+        if (!companyId) throw new BadRequestException('Company is Required')
+        const check = await this.getById({ id, companyId })
 
         check.firstName = data.firstName ?? check.firstName;
         check.middleName = data.middleName ?? check.middleName;
@@ -94,7 +107,9 @@ export class CompanyEmployeeService {
         return Message.updated
     }
 
-    async checkEmployee(id: string): Promise<CompanyEmployee> {
+    async checkEmployee({ id, companyId }: { id: string, companyId: string }): Promise<CompanyEmployee> {
+
+        if (!companyId) throw new BadRequestException('Company is Required')
         const check = await this.companyEmployeeRepo.createQueryBuilder('employee')
             .select(['employee.id'])
             .where('employee.id = :id', { id })
@@ -106,8 +121,8 @@ export class CompanyEmployeeService {
 
     }
 
-    async delete(id: string) {
-        const check = await this.checkEmployee(id)
+    async delete({ id, companyId }: { id: string, companyId: string }) {
+        const check = await this.checkEmployee({ id, companyId })
 
         await this.companyEmployeeRepo.delete(check.id);
         return Message.deleted;
