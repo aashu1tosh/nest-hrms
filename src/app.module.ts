@@ -10,6 +10,7 @@ import { typeOrmConfigAsync } from './config/orm.config';
 import { AdminModule } from './modules/admin/admin.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CompanyModule } from './modules/company/company.module';
+import { CompanyAdminModule } from './modules/company-admin/company-admin.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { CompanyModule } from './modules/company/company.module';
     AuthModule,
     AdminModule,
     CompanyModule,
+    CompanyAdminModule,
   ],
   controllers: [],
   providers: [

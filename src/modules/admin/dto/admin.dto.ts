@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { IsNotBlank } from 'src/common/dto/isNotBlank.dto';
+import { IsNotBlank } from 'src/common/dto/is-not-blank.dto';
 
 export class CreateAdminDTO {
   @IsNotEmpty()
