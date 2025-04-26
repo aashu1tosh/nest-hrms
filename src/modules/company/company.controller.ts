@@ -1,10 +1,10 @@
-import { Body, Controller, DefaultValuePipe, Get, ParseIntPipe, Post, Query } from '@nestjs/common';
+import { Body, Controller, DefaultValuePipe, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { Authentication } from 'src/common/decorator/authentication.decorator';
 import { Authorization } from 'src/common/decorator/authorization.decorator';
 import { Role } from 'src/constant/enum';
 import { Message } from 'src/constant/message';
 import { successResponse } from 'src/helper/successResponse';
-import { CreateCompanyDTO } from './dto/company.dto';
+import { CreateCompanyDTO, UpdateCompanyDTO } from './dto/company.dto';
 import { CompanyService } from './service/company.service';
 
 @Controller('company')
@@ -42,6 +42,18 @@ export class CompanyController {
                 perPage
             }
         });
+    }
+
+    @Get(':id')
+    async getById(@Param('id') id: string) {
+        const response = await this.companyService.getById(id);
+        return successResponse(Message.fetched, response);
+    }
+
+    @Patch(':id')
+    async update(@Param('id') id: string, @Body() data: UpdateCompanyDTO) {
+        await this.companyService.update(id, data);
+        return successResponse(Message.updated);
     }
 
 }
