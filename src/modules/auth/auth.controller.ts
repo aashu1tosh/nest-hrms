@@ -5,7 +5,7 @@ import { Authentication } from 'src/common/decorator/authentication.decorator';
 import { Authorization } from 'src/common/decorator/authorization.decorator';
 import { Environment, Role } from 'src/constant/enum';
 import { Message } from 'src/constant/message';
-import { successResponse } from 'src/helper/successResponse';
+import { successResponse } from 'src/helper/success-response';
 import { CreateAuthDTO, LoginDTO } from './dto/auth.dto';
 import { AuthService } from './service/auth.service';
 

@@ -3,7 +3,7 @@ import { Authentication } from 'src/common/decorator/authentication.decorator';
 import { Authorization } from 'src/common/decorator/authorization.decorator';
 import { Role } from 'src/constant/enum';
 import { Message } from 'src/constant/message';
-import { successResponse } from 'src/helper/successResponse';
+import { successResponse } from 'src/helper/success-response';
 import { CreateCompanyDTO, UpdateCompanyDTO } from './dto/company.dto';
 import { CompanyService } from './service/company.service';
 
