@@ -1,0 +1,26 @@
+import { Body, Controller, Post } from '@nestjs/common';
+import { Authentication } from 'src/common/decorator/authentication.decorator';
+import { Authorization } from 'src/common/decorator/authorization.decorator';
+import { Role } from 'src/constant/enum';
+import { Message } from 'src/constant/message';
+import { successResponse } from 'src/helper/successResponse';
+import { CreateCompanyDTO } from './dto/company.dto';
+import { CompanyService } from './service/company.service';
+
+@Controller('company')
+@Authentication()
+@Authorization([Role.SUDO_ADMIN, Role.ADMIN])
+export class CompanyController {
+
+    constructor(
+        private companyService: CompanyService
+    ) { }
+
+
+    @Post()
+    async create(@Body() data: CreateCompanyDTO) {
+        await this.companyService.create(data);
+        return successResponse(Message.created);
+    }
+
+}

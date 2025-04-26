@@ -9,6 +9,7 @@ import { UserAgentGuard } from './common/guard/userAgent.guard';
 import { typeOrmConfigAsync } from './config/orm.config';
 import { AdminModule } from './modules/admin/admin.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { CompanyModule } from './modules/company/company.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AuthModule } from './modules/auth/auth.module';
     TypeOrmModule.forRootAsync(typeOrmConfigAsync),
     AuthModule,
     AdminModule,
+    CompanyModule,
   ],
   controllers: [],
   providers: [
