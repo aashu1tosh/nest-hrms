@@ -11,6 +11,7 @@ import { AdminModule } from './modules/admin/admin.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CompanyModule } from './modules/company/company.module';
 import { CompanyAdminModule } from './modules/company-admin/company-admin.module';
+import { CompanyEmployeeModule } from './modules/company-employee/company-employee.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { CompanyAdminModule } from './modules/company-admin/company-admin.module
     AdminModule,
     CompanyModule,
     CompanyAdminModule,
+    CompanyEmployeeModule,
   ],
   controllers: [],
   providers: [

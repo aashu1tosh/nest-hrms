@@ -2,6 +2,7 @@ import Base from 'src/common/entity/base.entity';
 import { Role } from 'src/constant/enum';
 import { Admin } from 'src/modules/admin/entity/admin.entity';
 import { CompanyAdmin } from 'src/modules/company-admin/entity/company-admin.entity';
+import { CompanyEmployee } from 'src/modules/company-employee/entity/company-employee.dto';
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 
 @Entity('auth')
@@ -35,4 +36,10 @@ export class Auth extends Base {
   })
   @JoinColumn({ name: 'company_admin_id' })
   companyAdmin: CompanyAdmin;
+
+  @OneToOne(() => CompanyEmployee, (companyEmployee) => companyEmployee.auth, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'company_employee_id' })
+  companyEmployee: CompanyEmployee;
 }

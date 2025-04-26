@@ -9,3 +9,15 @@ export enum Environment {
     PRODUCTION = 'PRODUCTION',
     DEVELOPMENT = 'DEVELOPMENT',
 }
+
+export enum Gender {
+    MALE = 'MALE',
+    FEMALE = 'FEMALE',
+    OTHERS = 'OTHERS'
+}
+
+export enum EmployeeStatus {
+    TERMINATED = 'TERMINATED',
+    ACTIVE = 'ACTIVE',
+    INACTIVE = 'INACTIVE',
+}

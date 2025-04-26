@@ -6,6 +6,7 @@ import { Role } from 'src/constant/enum';
 import { Message } from 'src/constant/message';
 import { AdminService } from 'src/modules/admin/service/admin.service';
 import { CompanyAdmin } from 'src/modules/company-admin/entity/company-admin.entity';
+import { CompanyEmployee } from 'src/modules/company-employee/entity/company-employee.dto';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { CreateAuthAdminDTO, CreateAuthDTO, LoginDTO } from '../dto/auth.dto';
 import { Auth } from '../entity/auth.entity';
@@ -61,7 +62,7 @@ export class AuthService {
 
   }
 
-  async createAuth({ data, companyAdmin }: { data: CreateAuthDTO, companyAdmin: CompanyAdmin }, manager: EntityManager) {
+  async createAuth({ data, companyAdmin, companyEmployee }: { data: CreateAuthDTO, companyAdmin?: CompanyAdmin, companyEmployee?: CompanyEmployee }, manager: EntityManager) {
 
     if (data.role === Role.SUDO_ADMIN || data.role === Role.ADMIN) throw new ForbiddenException(Message.notAuthorized);
 
@@ -84,7 +85,10 @@ export class AuthService {
     auth.email = data.email;
     auth.role = data.role;
     auth.password = await this.hashingService.hash(data.password);
-    auth.companyAdmin = companyAdmin;
+
+    if (companyAdmin) auth.companyAdmin = companyAdmin;
+    if (companyEmployee) auth.companyEmployee = companyEmployee;
+
     return await manager.save(auth);
   }
 
@@ -105,9 +109,23 @@ export class AuthService {
     if (!isMatch) throw new ForbiddenException(Message.invalidCredentials);
     delete (check as Partial<typeof check>).password;
 
+    const auth = await this.authRepo.createQueryBuilder('auth').select(['auth.id', 'auth.role'])
+      .leftJoin('auth.companyAdmin', 'companyAdmin')
+      .addSelect(['companyAdmin.id'])
+      .leftJoin('auth.companyEmployee', 'companyEmployee')
+      .addSelect(['companyEmployee.id'])
+      .leftJoin('companyEmployee.company', 'company')
+      .addSelect(['company.id'])
+      .leftJoin('companyAdmin.company', 'company')
+      .addSelect(['company.id'])
+      .getOne()
+
+
     const payload: IJwtPayload = {
-      id: check.id,
-      role: check.role,
+      id: auth?.id,
+      role: auth?.role,
+      companyId: auth?.companyAdmin?.company?.id,
+      employeeId: auth?.companyEmployee?.id
     };
     return this.generateAccessAndRefreshToken(payload);
   }
@@ -152,6 +170,8 @@ export class AuthService {
       return this.generateAccessAndRefreshToken({
         id: payload?.id,
         role: payload?.role,
+        companyId: payload?.companyId,
+        employeeId: payload?.employeeId
       });
     } catch {
       throw new UnauthorizedException(Message.tokenExpired);
