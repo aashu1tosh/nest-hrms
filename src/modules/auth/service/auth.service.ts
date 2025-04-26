@@ -72,7 +72,6 @@ export class AuthService {
 
     if (check) throw new ForbiddenException(`${data.email} already in use`);
 
-    console.log("🚀 ~ AuthService ~ createAuth ~ check:", check)
     const checkPhone = await this.authRepo
       .createQueryBuilder('auth')
       .where('auth.phone = :phone', { phone: data.phone })
@@ -86,9 +85,7 @@ export class AuthService {
     auth.role = data.role;
     auth.password = await this.hashingService.hash(data.password);
     auth.companyAdmin = companyAdmin;
-    const heeh = await manager.save(auth);
-    console.log("🚀 ~ AuthService ~ createAuth ~ heeh:", heeh)
-    return heeh
+    return await manager.save(auth);
   }
 
   async login({ data }: { data: LoginDTO }): Promise<AuthTokens> {
