@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Message } from 'src/constant/message';
 import { AuthService } from 'src/modules/auth/service/auth.service';
+import { CompanyService } from 'src/modules/company/service/company.service';
 import { DataSource, Repository } from 'typeorm';
 import { CreateEmployeeDTO, UpdateEmployeeDTO } from '../dto/company-employee.dto';
 import { CompanyEmployee } from '../entity/company-employee.entity';
@@ -13,8 +14,7 @@ export class CompanyEmployeeService {
         private dataSource: DataSource,
         @InjectRepository(CompanyEmployee) private companyEmployeeRepo: Repository<CompanyEmployee>,
         private authService: AuthService,
-
-
+        private companyService: CompanyService
     ) { }
 
     async create({ data, companyId }: { data: CreateEmployeeDTO, companyId?: string }) {
@@ -27,6 +27,7 @@ export class CompanyEmployeeService {
             companyEmployee.lastName = data.lastName;
             companyEmployee.phone = data.phone;
             companyEmployee.status = data.status;
+            companyEmployee.company = await this.companyService.checkCompany(companyId);
 
             const employee = await manager.save(companyEmployee);
 
