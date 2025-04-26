@@ -19,4 +19,35 @@ export class CompanyService {
         company.pan = data.pan;
         return await this.companyRepo.save(company);
     }
+
+    async getAll({
+        page = 1,
+        perPage = 10,
+        search
+    }: {
+        page?: number;
+        perPage?: number;
+        search?: string;
+    }): Promise<[Company[], number]> {
+        const query = this.companyRepo.createQueryBuilder('company')
+            .select(['company.id', 'company.name', 'company.phone', 'company.address', 'company.pan'])
+
+        if (search) {
+            query.where('company.name LIKE :search', { search: `%${search}%` })
+                .orWhere('company.phone LIKE :search', { search: `%${search}%` })
+                .orWhere('company.address LIKE :search', { search: `%${search}%` })
+                .orWhere('company.pan LIKE :search', { search: `%${search}%` });
+        }
+
+        return await query.skip((page - 1) * perPage)
+            .take(perPage)
+            .getManyAndCount();
+    }
+
+    async getById(id: string) {
+        return await this.companyRepo.createQueryBuilder('company')
+            .select(['company.id', 'company.name', 'company.phone', 'company.address', 'company.pan'])
+            .where('company.id = :id', { id })
+            .getOne();
+    }
 }
