@@ -9,7 +9,7 @@ import { CompanyService } from './service/company.service';
 
 @Controller('company')
 @Authentication()
-@Authorization([Role.SUDO_ADMIN, Role.ADMIN])
+@Authorization([Role.SUDO_ADMIN])
 export class CompanyController {
 
     constructor(
