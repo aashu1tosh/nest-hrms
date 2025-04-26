@@ -2,6 +2,7 @@ import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/c
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Role } from 'src/constant/enum';
 import { Message } from 'src/constant/message';
 import { AdminService } from 'src/modules/admin/service/admin.service';
 import { DataSource, EntityManager, Repository } from 'typeorm';
@@ -22,6 +23,9 @@ export class AuthService {
   ) { }
 
   async create({ data }: { data: CreateAuthAdminDTO }) {
+
+    if (data.role === Role.SUDO_ADMIN) throw new ForbiddenException(Message.notAuthorized);
+
     const check = await this.authRepo
       .createQueryBuilder('auth')
       .where('auth.email = :email', { email: data.email })
@@ -57,6 +61,9 @@ export class AuthService {
   }
 
   async createAuth({ data }: { data: CreateAuthDTO }, manager: EntityManager) {
+
+    if (data.role === Role.SUDO_ADMIN || data.role === Role.ADMIN) throw new ForbiddenException(Message.notAuthorized);
+
     const check = await this.authRepo
       .createQueryBuilder('auth')
       .where('auth.email = :email', { email: data.email })
