@@ -19,7 +19,6 @@ export class CompanyAdminService {
     async create({ data }: { data: CreateCompanyAdminDTO }) {
         await this.dataSource.transaction(async (manager) => {
 
-
             const companyAdmin = new CompanyAdmin();
             companyAdmin.firstName = data.firstName;
             companyAdmin.middleName = data.middleName;
@@ -49,14 +48,14 @@ export class CompanyAdminService {
         search?: string;
     }): Promise<[CompanyAdmin[], number]> {
         const query = this.companyAdminRepo.createQueryBuilder('company_admin')
-            .select(['company_admin.id', 'company_admin.first_name', 'company_admin.middle_name', 'company_admin.last_name'])
-            .leftJoinAndSelect('company_admin.company', 'company')
-            .leftJoinAndSelect('company_admin.auth', 'auth')
+            .select(['company_admin.id', 'company_admin.firstName', 'company_admin.middleName', 'company_admin.lastName'])
+            .leftJoinAndSelect('companyAdmin.company', 'company')
+            .leftJoinAndSelect('companyAdmin.auth', 'auth')
 
         if (search) {
-            query.where('company_admin.first_name LIKE :search', { search: `%${search}%` })
-                .orWhere('company_admin.middle_name LIKE :search', { search: `%${search}%` })
-                .orWhere('company_admin.last_name LIKE :search', { search: `%${search}%` });
+            query.where('companyAdmin.firstName LIKE :search', { search: `%${search}%` })
+                .orWhere('companyAdmin.middleName LIKE :search', { search: `%${search}%` })
+                .orWhere('companyAdmin.lastName LIKE :search', { search: `%${search}%` });
         }
 
         return await query.skip((page - 1) * perPage)

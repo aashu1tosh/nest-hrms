@@ -2,7 +2,7 @@ import Base from 'src/common/entity/base.entity';
 import { Role } from 'src/constant/enum';
 import { Admin } from 'src/modules/admin/entity/admin.entity';
 import { CompanyAdmin } from 'src/modules/company-admin/entity/company-admin.entity';
-import { CompanyEmployee } from 'src/modules/company-employee/entity/company-employee.dto';
+import { CompanyEmployee } from 'src/modules/company-employee/entity/company-employee.entity';
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 
 @Entity('auth')

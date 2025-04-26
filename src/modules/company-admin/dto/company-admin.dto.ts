@@ -1,4 +1,4 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { OmitType, PartialType } from '@nestjs/mapped-types';
 import { Type } from 'class-transformer';
 import { IsOptional, IsString, IsUUID, ValidateNested } from "class-validator";
 import { IsNotBlank } from "src/common/dto/is-not-blank.dto";
@@ -26,4 +26,6 @@ export class CreateCompanyAdminDTO {
     auth: CreateAuthDTO;
 }
 
-export class UpdateCompanyAdminDTO extends PartialType(CreateCompanyAdminDTO) { }
+export class UpdateCompanyAdminDTO extends PartialType(
+    OmitType(CreateCompanyAdminDTO, ['auth'] as const),
+) { }

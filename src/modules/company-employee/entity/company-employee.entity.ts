@@ -16,7 +16,7 @@ export class CompanyEmployee extends Base {
     @Column({ name: 'first_name' })
     lastName: string
 
-    @Column({ name: 'phone_number', nullable: true, unique: true })
+    @Column({ name: 'phone_number', nullable: true })
     phone: string;
 
     @Column({
@@ -31,3 +31,4 @@ export class CompanyEmployee extends Base {
     })
     auth: Auth
 }
+

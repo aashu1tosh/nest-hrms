@@ -38,7 +38,7 @@ export class CompanyAdminController {
     }
 
     @Get(':id')
-    async getById(@Query('id') id: string) {
+    async getById(@Param('id') id: string) {
         const response = await this.companyAdminService.getById(id);
         return successResponse(Message.fetched, response);
     }

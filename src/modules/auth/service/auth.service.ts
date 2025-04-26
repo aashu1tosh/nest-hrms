@@ -6,7 +6,7 @@ import { Role } from 'src/constant/enum';
 import { Message } from 'src/constant/message';
 import { AdminService } from 'src/modules/admin/service/admin.service';
 import { CompanyAdmin } from 'src/modules/company-admin/entity/company-admin.entity';
-import { CompanyEmployee } from 'src/modules/company-employee/entity/company-employee.dto';
+import { CompanyEmployee } from 'src/modules/company-employee/entity/company-employee.entity';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { CreateAuthAdminDTO, CreateAuthDTO, LoginDTO } from '../dto/auth.dto';
 import { Auth } from '../entity/auth.entity';
