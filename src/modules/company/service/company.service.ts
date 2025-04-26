@@ -64,4 +64,13 @@ export class CompanyService {
         company.pan = data.pan ?? company.pan;
         await this.companyRepo.save(company);
     }
+
+    async checkCompany(id: string): Promise<Company> {
+        const company = await this.companyRepo.createQueryBuilder('company')
+            .select(['company.id',])
+            .where('company.id = :id', { id })
+            .getOne();
+        if (!company) throw new NotFoundException(getNotFoundMessage('Company'));
+        return company;
+    }
 }

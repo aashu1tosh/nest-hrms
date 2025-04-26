@@ -2,11 +2,10 @@ import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/c
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Role } from 'src/constant/enum';
 import { Message } from 'src/constant/message';
 import { AdminService } from 'src/modules/admin/service/admin.service';
-import { DataSource, Repository } from 'typeorm';
-import { CreateAuthDTO, LoginDTO } from '../dto/auth.dto';
+import { DataSource, EntityManager, Repository } from 'typeorm';
+import { CreateAuthAdminDTO, CreateAuthDTO, LoginDTO } from '../dto/auth.dto';
 import { Auth } from '../entity/auth.entity';
 import { AuthTokens, IJwtPayload } from '../interface/auth.interface';
 import { HashingService } from './hashing/hashing.service';
@@ -22,7 +21,7 @@ export class AuthService {
     private configService: ConfigService,
   ) { }
 
-  async create({ data }: { data: CreateAuthDTO }) {
+  async create({ data }: { data: CreateAuthAdminDTO }) {
     const check = await this.authRepo
       .createQueryBuilder('auth')
       .where('auth.email = :email', { email: data.email })
@@ -46,7 +45,7 @@ export class AuthService {
 
       const auth = new Auth();
       auth.email = data.email;
-      auth.role = (data.role as Role) ?? Role.ADMIN;
+      auth.role = data.role;
       auth.password = await this.hashingService.hash(data.password);
       auth.admin = admin;
       await manager.save(auth);
@@ -55,6 +54,30 @@ export class AuthService {
 
     return Message.created;
 
+  }
+
+  async createAuth({ data }: { data: CreateAuthDTO }, manager: EntityManager) {
+    const check = await this.authRepo
+      .createQueryBuilder('auth')
+      .where('auth.email = :email', { email: data.email })
+      .getCount();
+
+    if (check) throw new ForbiddenException(`${data.email} already in use`);
+
+    const checkPhone = await this.authRepo
+      .createQueryBuilder('auth')
+      .where('auth.phone = :phone', { phone: data.phone })
+      .getCount();
+
+    if (checkPhone)
+      throw new ForbiddenException(`${data.phone} already in use`);
+
+    const auth = new Auth();
+    auth.email = data.email;
+    auth.role = data.role;
+    auth.password = await this.hashingService.hash(data.password);
+    await manager.save(auth);
+    return auth;
   }
 
   async login({ data }: { data: LoginDTO }): Promise<AuthTokens> {

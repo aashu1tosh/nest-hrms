@@ -1,6 +1,8 @@
 export enum Role {
     SUDO_ADMIN = 'SUDO_ADMIN',
     ADMIN = 'ADMIN',
+    COMPANY_SUPER_ADMIN = 'COMPANY_SUPER_ADMIN',
+    COMPANY_ADMIN = 'COMPANY_ADMIN',
 }
 
 export enum Environment {

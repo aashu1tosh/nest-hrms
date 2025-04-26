@@ -26,8 +26,10 @@ export class CreateAuthDTO {
 
   @IsNotEmpty()
   @IsEnum(Role)
-  role?: Role;
+  role: Role;
+}
 
+export class CreateAuthAdminDTO extends CreateAuthDTO {
   @ValidateNested()
   @Type(() => CreateAdminDTO)
   admin: CreateAdminDTO;
