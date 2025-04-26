@@ -3,8 +3,13 @@ import { Message } from 'src/constant/message';
 import { successResponse } from 'src/helper/success-response';
 import { CreateCompanyAdminDTO } from './dto/company-admin.dto';
 import { CompanyAdminService } from './service/company-admin.service';
+import { Authentication } from 'src/common/decorator/authentication.decorator';
+import { Authorization } from 'src/common/decorator/authorization.decorator';
+import { Role } from 'src/constant/enum';
 
 @Controller('company-admin')
+@Authentication()
+@Authorization([Role.SUDO_ADMIN, Role.ADMIN])
 export class CompanyAdminController {
 
     constructor(
