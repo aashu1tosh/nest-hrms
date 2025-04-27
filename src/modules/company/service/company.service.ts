@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { getNotFoundMessage } from 'src/constant/message';
 import { Repository } from 'typeorm';
-import { CreateCompanyDTO } from '../dto/company.dto';
+import { CreateCompanyDTO, UpdateCompanyDTO } from '../dto/company.dto';
 import { Company } from '../entity/company.entity';
 
 @Injectable()
@@ -44,10 +45,32 @@ export class CompanyService {
             .getManyAndCount();
     }
 
-    async getById(id: string) {
-        return await this.companyRepo.createQueryBuilder('company')
+    async getById(id: string): Promise<Company> {
+        const data = await this.companyRepo.createQueryBuilder('company')
             .select(['company.id', 'company.name', 'company.phone', 'company.address', 'company.pan'])
             .where('company.id = :id', { id })
             .getOne();
+
+        if (!data) throw new NotFoundException(getNotFoundMessage('Company'));
+        return data;
+    }
+
+    async update(id: string, data: UpdateCompanyDTO) {
+        const company = await this.getById(id);
+
+        company.name = data.name ?? company.name;
+        company.phone = data.phone ?? company.phone;
+        company.address = data.address ?? company.address;
+        company.pan = data.pan ?? company.pan;
+        await this.companyRepo.save(company);
+    }
+
+    async checkCompany(id: string): Promise<Company> {
+        const company = await this.companyRepo.createQueryBuilder('company')
+            .select(['company.id',])
+            .where('company.id = :id', { id })
+            .getOne();
+        if (!company) throw new NotFoundException(getNotFoundMessage('Company'));
+        return company;
     }
 }

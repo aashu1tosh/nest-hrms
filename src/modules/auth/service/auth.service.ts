@@ -5,8 +5,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from 'src/constant/enum';
 import { Message } from 'src/constant/message';
 import { AdminService } from 'src/modules/admin/service/admin.service';
-import { DataSource, Repository } from 'typeorm';
-import { CreateAuthDTO, LoginDTO } from '../dto/auth.dto';
+import { CompanyAdmin } from 'src/modules/company-admin/entity/company-admin.entity';
+import { CompanyEmployee } from 'src/modules/company-employee/entity/company-employee.entity';
+import { DataSource, EntityManager, Repository } from 'typeorm';
+import { CreateAuthAdminDTO, CreateAuthDTO, LoginDTO } from '../dto/auth.dto';
 import { Auth } from '../entity/auth.entity';
 import { AuthTokens, IJwtPayload } from '../interface/auth.interface';
 import { HashingService } from './hashing/hashing.service';
@@ -22,7 +24,10 @@ export class AuthService {
     private configService: ConfigService,
   ) { }
 
-  async create({ data }: { data: CreateAuthDTO }) {
+  async create({ data }: { data: CreateAuthAdminDTO }) {
+
+    if (data.role === Role.SUDO_ADMIN) throw new ForbiddenException(Message.notAuthorized);
+
     const check = await this.authRepo
       .createQueryBuilder('auth')
       .where('auth.email = :email', { email: data.email })
@@ -46,7 +51,7 @@ export class AuthService {
 
       const auth = new Auth();
       auth.email = data.email;
-      auth.role = (data.role as Role) ?? Role.ADMIN;
+      auth.role = data.role;
       auth.password = await this.hashingService.hash(data.password);
       auth.admin = admin;
       await manager.save(auth);
@@ -55,6 +60,36 @@ export class AuthService {
 
     return Message.created;
 
+  }
+
+  async createAuth({ data, companyAdmin, companyEmployee }: { data: CreateAuthDTO, companyAdmin?: CompanyAdmin, companyEmployee?: CompanyEmployee }, manager: EntityManager) {
+
+    if (data.role === Role.SUDO_ADMIN || data.role === Role.ADMIN) throw new ForbiddenException(Message.notAuthorized);
+
+    const check = await this.authRepo
+      .createQueryBuilder('auth')
+      .where('auth.email = :email', { email: data.email })
+      .getOne();
+
+    if (check) throw new ForbiddenException(`${data.email} already in use`);
+
+    const checkPhone = await this.authRepo
+      .createQueryBuilder('auth')
+      .where('auth.phone = :phone', { phone: data.phone })
+      .getOne();
+
+    if (checkPhone)
+      throw new ForbiddenException(`${data.phone} already in use`);
+
+    const auth = new Auth();
+    auth.email = data.email;
+    auth.role = data.role;
+    auth.password = await this.hashingService.hash(data.password);
+
+    if (companyAdmin) auth.companyAdmin = companyAdmin;
+    if (companyEmployee) auth.companyEmployee = companyEmployee;
+
+    return await manager.save(auth);
   }
 
   async login({ data }: { data: LoginDTO }): Promise<AuthTokens> {
@@ -74,9 +109,25 @@ export class AuthService {
     if (!isMatch) throw new ForbiddenException(Message.invalidCredentials);
     delete (check as Partial<typeof check>).password;
 
+    const auth = await this.authRepo.createQueryBuilder('auth').select(['auth.id', 'auth.role'])
+      .leftJoin('auth.companyAdmin', 'companyAdmin')
+      .addSelect(['companyAdmin.id'])
+      .leftJoin('auth.companyEmployee', 'companyEmployee')
+      .addSelect(['companyEmployee.id'])
+      .leftJoin('companyEmployee.company', 'companyFromEmployee')
+      .addSelect(['companyFromEmployee.id'])
+      .leftJoin('companyAdmin.company', 'companyFromAdmin')
+      .addSelect(['companyFromAdmin.id'])
+      .where('auth.id = :id', { id: check.id })
+      .getOne()
+
+    console.log("🚀 ~ AuthService ~ login ~ auth:", auth)
+
     const payload: IJwtPayload = {
-      id: check.id,
-      role: check.role,
+      id: auth?.id,
+      role: auth?.role,
+      companyId: auth?.companyAdmin?.company?.id,
+      employeeId: auth?.companyEmployee?.id
     };
     return this.generateAccessAndRefreshToken(payload);
   }
@@ -121,6 +172,8 @@ export class AuthService {
       return this.generateAccessAndRefreshToken({
         id: payload?.id,
         role: payload?.role,
+        companyId: payload?.companyId,
+        employeeId: payload?.employeeId
       });
     } catch {
       throw new UnauthorizedException(Message.tokenExpired);

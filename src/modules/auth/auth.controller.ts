@@ -5,8 +5,8 @@ import { Authentication } from 'src/common/decorator/authentication.decorator';
 import { Authorization } from 'src/common/decorator/authorization.decorator';
 import { Environment, Role } from 'src/constant/enum';
 import { Message } from 'src/constant/message';
-import { successResponse } from 'src/helper/successResponse';
-import { CreateAuthDTO, LoginDTO } from './dto/auth.dto';
+import { successResponse } from 'src/helper/success-response';
+import { CreateAuthAdminDTO, LoginDTO } from './dto/auth.dto';
 import { AuthService } from './service/auth.service';
 
 @Controller('auth')
@@ -42,7 +42,7 @@ export class AuthController {
   @Post('/register')
   @Authentication()
   @Authorization([Role.SUDO_ADMIN])
-  async create(@Body() data: CreateAuthDTO) {
+  async create(@Body() data: CreateAuthAdminDTO) {
     await this.authService.create({ data });
     return successResponse(Message.created);
   }

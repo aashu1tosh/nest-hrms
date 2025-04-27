@@ -3,10 +3,13 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import type { Request } from 'express';
 import type { IJwtPayload } from 'src/modules/auth/interface/auth.interface';
 
-export const User = createParamDecorator<unknown, IJwtPayload>(
-    (data: unknown, ctx: ExecutionContext): IJwtPayload => {
-        // Now Request.user is known to be IJwtPayload
+export const User = createParamDecorator(
+    (data: keyof IJwtPayload | undefined, ctx: ExecutionContext) => {
         const request = ctx.switchToHttp().getRequest<Request>();
-        return request.user;
+        const user = request.user;
+        if (data) {
+            return user[data];
+        }
+        return user;
     },
 );
