@@ -9,9 +9,10 @@ import { UserAgentGuard } from './common/guard/userAgent.guard';
 import { typeOrmConfigAsync } from './config/orm.config';
 import { AdminModule } from './modules/admin/admin.module';
 import { AuthModule } from './modules/auth/auth.module';
-import { CompanyModule } from './modules/company/company.module';
 import { CompanyAdminModule } from './modules/company-admin/company-admin.module';
 import { CompanyEmployeeModule } from './modules/company-employee/company-employee.module';
+import { CompanyModule } from './modules/company/company.module';
+import { WorklogModule } from './modules/worklog/worklog.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { CompanyEmployeeModule } from './modules/company-employee/company-employ
     CompanyModule,
     CompanyAdminModule,
     CompanyEmployeeModule,
+    WorklogModule,
   ],
   controllers: [],
   providers: [
@@ -36,4 +38,4 @@ import { CompanyEmployeeModule } from './modules/company-employee/company-employ
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}
