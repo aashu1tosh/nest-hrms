@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthGuard } from './common/guard/authentication.guard';
 import { AuthorizationGuard } from './common/guard/authorization.guard';
 import { UserAgentGuard } from './common/guard/userAgent.guard';
+import { TransformInterceptor } from './common/interceptor/transform.interceptor';
 import { typeOrmConfigAsync } from './config/orm.config';
 import { AdminModule } from './modules/admin/admin.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -36,6 +37,10 @@ import { WorklogModule } from './modules/worklog/worklog.module';
       provide: APP_GUARD,
       useClass: UserAgentGuard,
     },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TransformInterceptor,
+    },
   ],
 })
-export class AppModule {}
+export class AppModule { }

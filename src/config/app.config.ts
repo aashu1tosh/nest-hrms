@@ -3,6 +3,8 @@ import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import { AppModule } from 'src/app.module';
+import { GlobalExceptionFilter } from 'src/common/middleware/http-exception.middleware';
+// import { GlobalExceptionFilter } from 'src/common/middleware/http-exception.middleware';
 
 export async function createApp(): Promise<INestApplication> {
   const app = await NestFactory.create(AppModule);
@@ -24,6 +26,9 @@ export async function createApp(): Promise<INestApplication> {
       forbidNonWhitelisted: true,
     }),
   );
+
+  // Register global exception filter for standardized error responses
+  app.useGlobalFilters(new GlobalExceptionFilter());
 
   return app;
 }
