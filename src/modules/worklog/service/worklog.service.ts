@@ -45,12 +45,14 @@ export class WorklogService {
     perPage = 10,
     search,
     user,
+    employeeId,
   }: {
     page?: number;
     perPage?: number;
     search?: string;
     user: IJwtPayload;
-  }) {
+    employeeId?: string;
+  }): Promise<[Worklog[], number]> {
     const query = this.worklogRepo
       .createQueryBuilder('worklog')
       .select([
@@ -73,6 +75,8 @@ export class WorklogService {
           'employee.lastName',
         ])
         .where('company.id = :companyId', { companyId: user.companyId });
+      if (employeeId)
+        query.andWhere('employee.id = :employeeId', { employeeId });
     } else {
       query.where('employee.id = :employeeId', { employeeId: user.employeeId });
     }
@@ -131,13 +135,21 @@ export class WorklogService {
     return worklog;
   }
 
-  async update(id: number, updateDto: UpdateWorklogDTO, user: IJwtPayload) {
+  async update({
+    id,
+    data,
+    user,
+  }: {
+    id: number;
+    data: UpdateWorklogDTO;
+    user: IJwtPayload;
+  }) {
     const worklog = await this.getById(id, user);
 
     if (!worklog.editable)
       throw new BadRequestException('You can only edit worklogs created today');
 
-    Object.assign(worklog, updateDto);
+    Object.assign(worklog, data);
 
     await this.worklogRepo.save(worklog);
 
