@@ -7,8 +7,13 @@ import { CompanyEmployee } from './entity/company-employee.entity';
 import { CompanyEmployeeService } from './service/company-employee.service';
 
 @Module({
-  imports: [AuthModule, CompanyModule, TypeOrmModule.forFeature([CompanyEmployee])],
+  imports: [
+    AuthModule,
+    CompanyModule,
+    TypeOrmModule.forFeature([CompanyEmployee]),
+  ],
   controllers: [CompanyEmployeeController],
   providers: [CompanyEmployeeService],
+  exports: [CompanyEmployeeService],
 })
-export class CompanyEmployeeModule { }
+export class CompanyEmployeeModule {}
