@@ -1,6 +1,7 @@
+import moment from 'moment';
 import Base from 'src/common/entity/base.entity';
 import { CompanyEmployee } from 'src/modules/company-employee/entity/company-employee.entity';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { AfterLoad, Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 @Entity('work_log')
 export class Worklog extends Base {
@@ -28,4 +29,11 @@ export class Worklog extends Base {
   )
   @JoinColumn({ name: 'company_employee_id' })
   companyEmployee: CompanyEmployee;
+
+  editable: boolean; // transient field
+
+  @AfterLoad()
+  setEditable() {
+    this.editable = moment(this.createdAt).isSame(moment(), 'day');
+  }
 }
