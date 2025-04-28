@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { applyPartialUpdate } from 'src/helper/apply-partial-update';
 import { EntityManager, Repository } from 'typeorm';
-import { CreateAdminDTO } from '../dto/admin.dto';
+import { CreateAdminDTO, UpdateAdminDTO } from '../dto/admin.dto';
 import { Admin } from '../entity/admin.entity';
 @Injectable()
 export class AdminService {
@@ -58,7 +59,7 @@ export class AdminService {
   }
 
 
-  async update(id: string, data: CreateAdminDTO) {
+  async update(id: string, data: UpdateAdminDTO) {
 
     const admin = await this.adminRepo.createQueryBuilder('admin')
       .select(['admin.id'])
@@ -67,9 +68,7 @@ export class AdminService {
 
     if (!admin) throw new NotFoundException('Admin not found');
 
-    admin.firstName = data.firstName;
-    admin.middleName = data.middleName;
-    admin.lastName = data.lastName;
-    return await this.adminRepo.save(admin);
+    const updatedAdmin = applyPartialUpdate<Admin, UpdateAdminDTO>(admin, data)
+    return await this.adminRepo.save(updatedAdmin);
   }
 }
