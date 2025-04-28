@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
+import { Body, Controller, DefaultValuePipe, Get, Param, ParseIntPipe, Patch } from '@nestjs/common';
 import { ApiMessage } from 'src/common/decorator/api-response.decorator';
 import { Authentication } from 'src/common/decorator/authentication.decorator';
 import { Authorization } from 'src/common/decorator/authorization.decorator';
@@ -27,16 +27,14 @@ export class AdminController {
   @ApiMessage(Message.fetched)
   async getById(@Param('id') id: string) {
     const admin = await this.adminService.getById(id);
-    return {
-      data: admin,
-    };
+    return admin
   }
 
   @Get()
   @ApiMessage(Message.fetched)
   async getAll(
-    @Param('page') page: number,
-    @Param('perPage') perPage: number,
+    @Param('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Param('perPage', new DefaultValuePipe(1), ParseIntPipe) perPage: number,
     @Param('search') search?: string,
   ) {
     const [admins, count] = await this.adminService.getAll({
