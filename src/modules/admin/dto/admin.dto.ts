@@ -14,3 +14,5 @@ export class CreateAdminDTO {
   @IsNotBlank()
   lastName: string;
 }
+
+export class UpdateAdminDTO extends CreateAdminDTO { }
