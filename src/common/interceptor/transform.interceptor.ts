@@ -10,7 +10,6 @@ export class TransformInterceptor<T> implements NestInterceptor<T, ApiResponse<T
 
     constructor(private reflector: Reflector) { }
 
-    // Modified interceptor that reads metadata
     intercept(context: ExecutionContext, next: CallHandler): Observable<ApiResponse<T>> {
         const apiMessage = this.reflector.get<string>(
             API_MESSAGE_KEY,

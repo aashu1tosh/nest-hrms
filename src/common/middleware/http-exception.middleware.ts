@@ -1,12 +1,18 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
 import { ValidationError } from 'class-validator';
-import { Response } from 'express';
+import { Request, Response } from 'express';
+import { CustomLoggerService } from 'src/modules/logger/service/logger.service';
 import { ApiResponse } from '../interface/api-response.interface';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
+
+    constructor(private readonly logger: CustomLoggerService) { }
+
+
     catch(exception: unknown, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
+        const request = ctx.getRequest<Request>();
         const response = ctx.getResponse<Response>();
 
         let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -42,10 +48,15 @@ export class GlobalExceptionFilter implements ExceptionFilter {
                 }
             }
         } else if (exception instanceof Error) {
-            // Log the actual error
-            console.error(exception);
-
             message = 'Internal server error';
+
+            // In your exception filter or controller
+            this.logger.error(
+                exception.message,
+                exception.stack,
+                'InternalServerError',
+                { url: request.url }
+            );
         }
 
         // Create standardized response

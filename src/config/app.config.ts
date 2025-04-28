@@ -3,7 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import { AppModule } from 'src/app.module';
-import { GlobalExceptionFilter } from 'src/common/middleware/http-exception.middleware';
+import { CustomLoggerService } from 'src/modules/logger/service/logger.service';
 // import { GlobalExceptionFilter } from 'src/common/middleware/http-exception.middleware';
 
 export async function createApp(): Promise<INestApplication> {
@@ -17,6 +17,10 @@ export async function createApp(): Promise<INestApplication> {
 
   app.use(cookieParser());
   app.use(morgan('dev'));
+
+  const logger = await app.resolve(CustomLoggerService);
+  app.useLogger(logger);
+
   app.setGlobalPrefix('api/v1');
 
   app.useGlobalPipes(
@@ -26,9 +30,6 @@ export async function createApp(): Promise<INestApplication> {
       forbidNonWhitelisted: true,
     }),
   );
-
-  // Register global exception filter for standardized error responses
-  app.useGlobalFilters(new GlobalExceptionFilter());
 
   return app;
 }
