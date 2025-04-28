@@ -6,7 +6,7 @@ async function bootstrap() {
   const app = await createApp();
 
   const configService = app.get(ConfigService);
-  const port = configService.get<number>('port') ?? 3000;
+  const port = configService.get<number>('PORT') ?? 3000;
 
   const loggerService = await app.resolve(CustomLoggerService);
   const logger = loggerService.setContext('Bootstrap');
