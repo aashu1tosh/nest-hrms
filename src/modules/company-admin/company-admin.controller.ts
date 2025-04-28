@@ -4,7 +4,6 @@ import { Authentication } from 'src/common/decorator/authentication.decorator';
 import { Authorization } from 'src/common/decorator/authorization.decorator';
 import { Role } from 'src/constant/enum';
 import { Message } from 'src/constant/message';
-import { successResponse } from 'src/helper/success-response';
 import { CreateCompanyAdminDTO } from './dto/company-admin.dto';
 import { CompanyAdminService } from './service/company-admin.service';
 
@@ -48,14 +47,13 @@ export class CompanyAdminController {
     @ApiMessage(Message.fetched)
     async getById(@Param('id') id: string) {
         const response = await this.companyAdminService.getById(id);
-        return successResponse(Message.fetched, response);
+        return response
     }
 
     @Patch(':id')
     @ApiMessage(Message.updated)
     async update(@Param('id') id: string, @Body() data: CreateCompanyAdminDTO) {
         await this.companyAdminService.update(id, data);
-        return successResponse(Message.updated);
     }
 
 }

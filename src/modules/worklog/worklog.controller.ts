@@ -16,7 +16,6 @@ import { Authorization } from 'src/common/decorator/authorization.decorator';
 import { User } from 'src/common/decorator/user.decorator';
 import { Role } from 'src/constant/enum';
 import { Message } from 'src/constant/message';
-import { successResponse } from 'src/helper/success-response';
 import { IJwtPayload } from '../auth/interface/auth.interface';
 import { CreateWorklogDTO, UpdateWorklogDTO } from './dto/worklog.dto';
 import { WorklogService } from './service/worklog.service';
@@ -34,7 +33,6 @@ export class WorklogController {
     if (!user.employeeId) throw new BadRequestException('Employee is Required');
 
     await this.worklogService.create({ data, user });
-    return successResponse(Message.created);
   }
 
   @Get()
