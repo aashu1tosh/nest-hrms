@@ -11,12 +11,12 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+import { ApiMessage } from 'src/common/decorator/api-response.decorator';
 import { Authentication } from 'src/common/decorator/authentication.decorator';
 import { Authorization } from 'src/common/decorator/authorization.decorator';
 import { User } from 'src/common/decorator/user.decorator';
 import { Role } from 'src/constant/enum';
 import { Message } from 'src/constant/message';
-import { successResponse } from 'src/helper/success-response';
 import {
   CreateEmployeeDTO,
   UpdateEmployeeDTO,
@@ -27,19 +27,20 @@ import { CompanyEmployeeService } from './service/company-employee.service';
 @Authentication()
 @Authorization([Role.COMPANY_SUPER_ADMIN, Role.COMPANY_ADMIN])
 export class CompanyEmployeeController {
-  constructor(private companyEmployeeService: CompanyEmployeeService) {}
+  constructor(private companyEmployeeService: CompanyEmployeeService) { }
 
   @Post()
+  @ApiMessage(Message.created)
   async create(
     @Body() data: CreateEmployeeDTO,
     @User('companyId') companyId: string,
   ) {
     if (!companyId) throw new BadRequestException('Company is Required');
     await this.companyEmployeeService.create({ data, companyId });
-    return successResponse(Message.created);
   }
 
   @Get()
+  @ApiMessage(Message.fetched)
   async getAll(
     @User('companyId') companyId: string,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
@@ -52,27 +53,29 @@ export class CompanyEmployeeController {
       search,
       companyId,
     });
-    return successResponse(Message.fetched, {
+    return {
       data: response[0],
       pagination: {
         page,
         total: response[1],
         perPage,
       },
-    });
+    };
   }
 
   @Get(':id')
+  @ApiMessage(Message.fetched)
   async getById(@Param('id') id: string, @User('companyId') companyId: string) {
     if (!companyId) throw new BadRequestException('Company is Required');
     const response = await this.companyEmployeeService.getById({
       id,
       companyId,
     });
-    return successResponse(Message.fetched, response);
+    return response;
   }
 
   @Patch(':id')
+  @ApiMessage(Message.updated)
   async update(
     @Param('id') id: string,
     @Body() data: UpdateEmployeeDTO,
@@ -80,13 +83,12 @@ export class CompanyEmployeeController {
   ) {
     if (!companyId) throw new BadRequestException('Company is Required');
     await this.companyEmployeeService.update({ id, data, companyId });
-    return successResponse(Message.updated);
   }
 
   @Delete(':id')
+  @ApiMessage(Message.deleted)
   async delete(@Param('id') id: string, @User('companyId') companyId: string) {
     if (!companyId) throw new BadRequestException('Company is Required');
     await this.companyEmployeeService.delete({ id, companyId });
-    return successResponse(Message.deleted);
   }
 }

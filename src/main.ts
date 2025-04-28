@@ -1,16 +1,24 @@
 import { ConfigService } from '@nestjs/config';
 import { createApp } from './config/app.config';
+import { CustomLoggerService } from './modules/logger/service/logger.service';
 
 async function bootstrap() {
   const app = await createApp();
 
   const configService = app.get(ConfigService);
-  const port = configService.get<number>('port') ?? 3000;
+  const port = configService.get<number>('PORT') ?? 3000;
+
+  const loggerService = await app.resolve(CustomLoggerService);
+  const logger = loggerService.setContext('Bootstrap');
 
   await app.listen(port);
-  console.log("Server is running on port", port);
+
+  logger.log(`Server is running on port ${port}`);
 }
-bootstrap().catch(() => {
-  console.error('Error starting the application');
+bootstrap().catch((err: Error) => {
+  const fallback = new CustomLoggerService(new ConfigService());
+  fallback.error('Error starting the application', err?.stack ?? String(err), "Bootstrap", {
+    message: err?.message,
+  });
   process.exit(1);
 });

@@ -1,11 +1,11 @@
 import { Body, Controller, HttpCode, HttpStatus, Post, Req, Res, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
+import { ApiMessage } from 'src/common/decorator/api-response.decorator';
 import { Authentication } from 'src/common/decorator/authentication.decorator';
 import { Authorization } from 'src/common/decorator/authorization.decorator';
 import { Environment, Role } from 'src/constant/enum';
 import { Message } from 'src/constant/message';
-import { successResponse } from 'src/helper/success-response';
 import { CreateAuthAdminDTO, LoginDTO } from './dto/auth.dto';
 import { AuthService } from './service/auth.service';
 
@@ -17,6 +17,7 @@ export class AuthController {
 
   @Post('/login')
   @HttpCode(HttpStatus.OK)
+  @ApiMessage(Message.loginSuccessfully)
   async login(@Body() data: LoginDTO, @Res({ passthrough: true }) res: Response) {
     const { accessToken, refreshToken } = await this.authService.login({ data });
 
@@ -35,20 +36,19 @@ export class AuthController {
       sameSite: 'strict',
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds
     });
-
-    return successResponse(Message.loginSuccessfully);
   }
 
   @Post('/register')
   @Authentication()
   @Authorization([Role.SUDO_ADMIN])
+  @ApiMessage(Message.created)
   async create(@Body() data: CreateAuthAdminDTO) {
     await this.authService.create({ data });
-    return successResponse(Message.created);
   }
 
   @Post('/refresh-token')
   @HttpCode(HttpStatus.OK)
+  @ApiMessage('Authentication token refreshed successfully')
   refreshToken(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const refreshToken = req.cookies.refreshToken as string
     if (!refreshToken) throw new UnauthorizedException(Message.notAuthorized)
@@ -70,17 +70,15 @@ export class AuthController {
       sameSite: 'strict',
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds
     });
-
-    return successResponse('Authentication token refreshed successfully');
   }
 
   @Post('/logout')
   @HttpCode(HttpStatus.OK)
   @Authentication()
+  @ApiMessage(Message.logoutSuccessfully)
   logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('accessToken');
     res.clearCookie('refreshToken');
-    return successResponse(Message.logoutSuccessfully);
   }
 }
 

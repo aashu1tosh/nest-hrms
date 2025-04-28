@@ -17,7 +17,7 @@ export class WorklogService {
   constructor(
     @InjectRepository(Worklog) private worklogRepo: Repository<Worklog>,
     private companyEmployeeService: CompanyEmployeeService,
-  ) {}
+  ) { }
 
   async create({
     data,
@@ -56,7 +56,8 @@ export class WorklogService {
     const query = this.worklogRepo
       .createQueryBuilder('worklog')
       .select([
-        'worklog.taskCompleted',
+        'worklog.id',
+        'worklog.tasksCompleted',
         'worklog.tasksInProgress',
         'worklog.challengesFaced',
         'worklog.plannedTasksForTomorrow',
@@ -83,7 +84,7 @@ export class WorklogService {
 
     if (search) {
       query.andWhere(
-        `(worklog.taskCompleted LIKE :search 
+        `(worklog.tasksCompleted LIKE :search 
         OR worklog.tasksInProgress LIKE :search 
         OR worklog.challengesFaced LIKE :search 
         OR worklog.plannedTasksForTomorrow LIKE :search)`,
@@ -101,7 +102,7 @@ export class WorklogService {
       .createQueryBuilder('worklog')
       .select([
         'worklog.id',
-        'worklog.taskCompleted',
+        'worklog.tasksCompleted',
         'worklog.tasksInProgress',
         'worklog.challengesFaced',
         'worklog.plannedTasksForTomorrow',

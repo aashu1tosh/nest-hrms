@@ -121,8 +121,6 @@ export class AuthService {
       .where('auth.id = :id', { id: check.id })
       .getOne()
 
-    console.log("🚀 ~ AuthService ~ login ~ auth:", auth)
-
     const payload: IJwtPayload = {
       id: auth?.id,
       role: auth?.role,
