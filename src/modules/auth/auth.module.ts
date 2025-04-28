@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -11,7 +11,7 @@ import { AuthService } from './service/auth.service';
 import { HashingService } from './service/hashing/hashing.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Auth]), AdminModule,
+  imports: [TypeOrmModule.forFeature([Auth]), forwardRef(() => AdminModule),
   JwtModule.registerAsync({
     imports: [ConfigModule],
     useFactory: (cs: ConfigService) => ({
