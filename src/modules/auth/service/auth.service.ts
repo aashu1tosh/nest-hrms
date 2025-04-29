@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -22,11 +26,11 @@ export class AuthService {
     private hashingService: HashingService,
     private jwtService: JwtService,
     private configService: ConfigService,
-  ) { }
+  ) {}
 
   async create({ data }: { data: CreateAuthAdminDTO }) {
-
-    if (data.role === Role.SUDO_ADMIN) throw new ForbiddenException(Message.notAuthorized);
+    if (data.role === Role.SUDO_ADMIN)
+      throw new ForbiddenException(Message.notAuthorized);
 
     const check = await this.authRepo
       .createQueryBuilder('auth')
@@ -59,12 +63,22 @@ export class AuthService {
     });
 
     return Message.created;
-
   }
 
-  async createAuth({ data, companyAdmin, companyEmployee }: { data: CreateAuthDTO, companyAdmin?: CompanyAdmin, companyEmployee?: CompanyEmployee }, manager: EntityManager) {
-
-    if (data.role === Role.SUDO_ADMIN || data.role === Role.ADMIN) throw new ForbiddenException(Message.notAuthorized);
+  async createAuth(
+    {
+      data,
+      companyAdmin,
+      companyEmployee,
+    }: {
+      data: CreateAuthDTO;
+      companyAdmin?: CompanyAdmin;
+      companyEmployee?: CompanyEmployee;
+    },
+    manager: EntityManager,
+  ) {
+    if (data.role === Role.SUDO_ADMIN || data.role === Role.ADMIN)
+      throw new ForbiddenException(Message.notAuthorized);
 
     const check = await this.authRepo
       .createQueryBuilder('auth')
@@ -92,6 +106,22 @@ export class AuthService {
     return await manager.save(auth);
   }
 
+  async me(id: string) {
+    return await this.authRepo
+      .createQueryBuilder('auth')
+      .select(['auth.id', 'auth.role'])
+      .leftJoin('auth.companyAdmin', 'companyAdmin')
+      .addSelect(['companyAdmin.id'])
+      .leftJoin('auth.companyEmployee', 'companyEmployee')
+      .addSelect(['companyEmployee.id'])
+      .leftJoin('companyEmployee.company', 'companyFromEmployee')
+      .addSelect(['companyFromEmployee.id'])
+      .leftJoin('companyAdmin.company', 'companyFromAdmin')
+      .addSelect(['companyFromAdmin.id'])
+      .where('auth.id = :id', { id })
+      .getOne();
+  }
+
   async login({ data }: { data: LoginDTO }): Promise<AuthTokens> {
     const check = await this.authRepo
       .createQueryBuilder('auth')
@@ -109,30 +139,19 @@ export class AuthService {
     if (!isMatch) throw new ForbiddenException(Message.invalidCredentials);
     delete (check as Partial<typeof check>).password;
 
-    const auth = await this.authRepo.createQueryBuilder('auth').select(['auth.id', 'auth.role'])
-      .leftJoin('auth.companyAdmin', 'companyAdmin')
-      .addSelect(['companyAdmin.id'])
-      .leftJoin('auth.companyEmployee', 'companyEmployee')
-      .addSelect(['companyEmployee.id'])
-      .leftJoin('companyEmployee.company', 'companyFromEmployee')
-      .addSelect(['companyFromEmployee.id'])
-      .leftJoin('companyAdmin.company', 'companyFromAdmin')
-      .addSelect(['companyFromAdmin.id'])
-      .where('auth.id = :id', { id: check.id })
-      .getOne()
+    const auth = await this.me(check.id);
+    if (!auth) throw new ForbiddenException(Message.notAuthorized);
 
     const payload: IJwtPayload = {
       id: auth?.id,
       role: auth?.role,
       companyId: auth?.companyAdmin?.company?.id,
-      employeeId: auth?.companyEmployee?.id
+      employeeId: auth?.companyEmployee?.id,
     };
     return this.generateAccessAndRefreshToken(payload);
   }
 
-  generateAccessAndRefreshToken(
-    payload: IJwtPayload,
-  ): AuthTokens {
+  generateAccessAndRefreshToken(payload: IJwtPayload): AuthTokens {
     const accessToken = this.jwtService.sign(payload, {
       expiresIn: this.configService.get<string>('JWT_ACCESS_TOKEN_EXPIRATION'),
       secret: this.configService.get<string>('JWT_ACCESS_TOKEN_SECRET'),
@@ -171,7 +190,7 @@ export class AuthService {
         id: payload?.id,
         role: payload?.role,
         companyId: payload?.companyId,
-        employeeId: payload?.employeeId
+        employeeId: payload?.employeeId,
       });
     } catch {
       throw new UnauthorizedException(Message.tokenExpired);
