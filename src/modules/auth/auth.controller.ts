@@ -1,9 +1,20 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Req, Res, UnauthorizedException } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  Res,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
 import { ApiMessage } from 'src/common/decorator/api-response.decorator';
 import { Authentication } from 'src/common/decorator/authentication.decorator';
 import { Authorization } from 'src/common/decorator/authorization.decorator';
+import { User } from 'src/common/decorator/user.decorator';
 import { Environment, Role } from 'src/constant/enum';
 import { Message } from 'src/constant/message';
 import { CreateAuthAdminDTO, LoginDTO } from './dto/auth.dto';
@@ -11,20 +22,33 @@ import { AuthService } from './service/auth.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService,
+  constructor(
+    private authService: AuthService,
     private configService: ConfigService,
-  ) { }
+  ) {}
+
+  @Get('/is-authorize-me')
+  @Authentication()
+  async isAuthorizeMe(@User('id') userId: string) {
+    return this.authService.me(userId);
+  }
 
   @Post('/login')
   @HttpCode(HttpStatus.OK)
   @ApiMessage(Message.loginSuccessfully)
-  async login(@Body() data: LoginDTO, @Res({ passthrough: true }) res: Response) {
-    const { accessToken, refreshToken } = await this.authService.login({ data });
+  async login(
+    @Body() data: LoginDTO,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { accessToken, refreshToken } = await this.authService.login({
+      data,
+    });
 
     // Set access token as HTTP-only cookie
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      secure: this.configService.get<string>('NODE_ENV') === Environment.PRODUCTION, // Only send over HTTPS in production
+      secure:
+        this.configService.get<string>('NODE_ENV') === Environment.PRODUCTION, // Only send over HTTPS in production
       sameSite: 'strict',
       maxAge: 15 * 60 * 1000, // 15 minutes in milliseconds
     });
@@ -32,7 +56,8 @@ export class AuthController {
     // Set refresh token as HTTP-only cookie
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: this.configService.get<string>('NODE_ENV') === Environment.PRODUCTION,
+      secure:
+        this.configService.get<string>('NODE_ENV') === Environment.PRODUCTION,
       sameSite: 'strict',
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds
     });
@@ -50,15 +75,17 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiMessage('Authentication token refreshed successfully')
   refreshToken(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const refreshToken = req.cookies.refreshToken as string
-    if (!refreshToken) throw new UnauthorizedException(Message.notAuthorized)
+    const refreshToken = req.cookies.refreshToken as string;
+    if (!refreshToken) throw new UnauthorizedException(Message.notAuthorized);
 
-    const { accessToken, refreshToken: newRefreshToken } = this.authService.refreshToken({ refreshToken });
+    const { accessToken, refreshToken: newRefreshToken } =
+      this.authService.refreshToken({ refreshToken });
 
     // Set access token as HTTP-only cookie
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      secure: this.configService.get<string>('NODE_ENV') === Environment.PRODUCTION, // Only send over HTTPS in production
+      secure:
+        this.configService.get<string>('NODE_ENV') === Environment.PRODUCTION, // Only send over HTTPS in production
       sameSite: 'strict',
       maxAge: 15 * 60 * 1000, // 15 minutes in milliseconds
     });
@@ -66,7 +93,8 @@ export class AuthController {
     // Set refresh token as HTTP-only cookie
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
-      secure: this.configService.get<string>('NODE_ENV') === Environment.PRODUCTION,
+      secure:
+        this.configService.get<string>('NODE_ENV') === Environment.PRODUCTION,
       sameSite: 'strict',
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds
     });
@@ -81,4 +109,3 @@ export class AuthController {
     res.clearCookie('refreshToken');
   }
 }
-
