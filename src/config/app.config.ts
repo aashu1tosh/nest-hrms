@@ -1,11 +1,11 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import { AppModule } from 'src/app.module';
 import { CustomLoggerService } from 'src/modules/logger/service/logger.service';
-// import { GlobalExceptionFilter } from 'src/common/middleware/http-exception.middleware';
 
 export async function createApp(): Promise<INestApplication> {
   const app = await NestFactory.create(AppModule);
@@ -31,6 +31,15 @@ export async function createApp(): Promise<INestApplication> {
   // I used this app module to create a global guard
   // const configService = app.get(ConfigService);
   // app.useGlobalGuards(new UserAgentGuard(configService));
+
+  const config = new DocumentBuilder()
+    .setTitle('My API')
+    .setDescription('API documentation')
+    .setVersion('1.0')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api-docs/v1', app, document);
 
   app.use(cookieParser());
   app.use(morgan('dev'));
