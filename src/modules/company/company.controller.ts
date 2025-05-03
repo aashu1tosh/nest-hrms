@@ -1,4 +1,5 @@
 import { Body, Controller, DefaultValuePipe, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { ApiMessage } from 'src/common/decorator/api-response.decorator';
 import { Authentication } from 'src/common/decorator/authentication.decorator';
 import { Authorization } from 'src/common/decorator/authorization.decorator';
@@ -8,6 +9,8 @@ import { CreateCompanyDTO, UpdateCompanyDTO } from './dto/company.dto';
 import { CompanyService } from './service/company.service';
 
 @Controller('company')
+@ApiMessage('Company CRUD API')
+@ApiBearerAuth()
 @Authentication()
 @Authorization([Role.SUDO_ADMIN, Role.ADMIN])
 export class CompanyController {
@@ -15,7 +18,6 @@ export class CompanyController {
     constructor(
         private companyService: CompanyService
     ) { }
-
 
     @Post()
     @ApiMessage(Message.created)

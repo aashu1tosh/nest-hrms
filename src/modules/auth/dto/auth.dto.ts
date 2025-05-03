@@ -35,6 +35,7 @@ export class CreateAuthDTO {
 }
 
 export class CreateAuthAdminDTO extends CreateAuthDTO {
+  @ApiProperty({ type: () => CreateAdminDTO })
   @ValidateNested()
   @Type(() => CreateAdminDTO)
   admin: CreateAdminDTO;
