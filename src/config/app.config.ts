@@ -32,6 +32,14 @@ export async function createApp(): Promise<INestApplication> {
   // const configService = app.get(ConfigService);
   // app.useGlobalGuards(new UserAgentGuard(configService));
 
+  app.use(cookieParser());
+  app.use(morgan('dev'));
+
+  const logger = await app.resolve(CustomLoggerService);
+  app.useLogger(logger);
+
+  app.setGlobalPrefix('api/v1');
+
   const config = new DocumentBuilder()
     .setTitle('My API')
     .setDescription('API documentation')
@@ -40,14 +48,6 @@ export async function createApp(): Promise<INestApplication> {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api-docs/v1', app, document);
-
-  app.use(cookieParser());
-  app.use(morgan('dev'));
-
-  const logger = await app.resolve(CustomLoggerService);
-  app.useLogger(logger);
-
-  app.setGlobalPrefix('api/v1');
 
   app.useGlobalPipes(
     new ValidationPipe({

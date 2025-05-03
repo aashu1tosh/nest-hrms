@@ -1,5 +1,5 @@
 import { Body, Controller, DefaultValuePipe, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { ApiMessage } from 'src/common/decorator/api-response.decorator';
 import { Authentication } from 'src/common/decorator/authentication.decorator';
 import { Authorization } from 'src/common/decorator/authorization.decorator';
@@ -27,6 +27,9 @@ export class CompanyController {
 
     @Get()
     @ApiMessage(Message.fetched)
+    @ApiQuery({ name: 'page', type: Number, required: false, example: 1 })   // Define each query separately
+    @ApiQuery({ name: 'perPage', type: Number, required: false, example: 10 })
+    @ApiQuery({ name: 'search', type: String, required: false, example: 'search_name' })
     async getAll(
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
         @Query('perPage', new DefaultValuePipe(10), ParseIntPipe) perPage: number,
