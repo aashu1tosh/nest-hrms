@@ -5,21 +5,24 @@ import { Column, Entity, OneToMany } from 'typeorm';
 
 @Entity('company')
 export class Company extends Base {
-    @Column()
-    name: string;
+  @Column()
+  name: string;
 
-    @Column({ name: 'phone_number', nullable: true })
-    phone: string;
+  @Column({ name: 'phone_number', nullable: true })
+  phone: string;
 
-    @Column()
-    address: string;
+  @Column()
+  address: string;
 
-    @Column({ nullable: true })
-    pan: string;
+  @Column({ nullable: true })
+  pan: string;
 
-    @OneToMany(() => CompanyAdmin, (companyAdmin) => companyAdmin.company)
-    companyAdmin: CompanyAdmin[]
+  @OneToMany(() => CompanyAdmin, (companyAdmin) => companyAdmin.company)
+  companyAdmin: CompanyAdmin[];
 
-    @OneToMany(() => CompanyEmployee, (companyEmployee) => companyEmployee.company)
-    companyEmployee: CompanyEmployee[]
+  @OneToMany(
+    () => CompanyEmployee,
+    (companyEmployee) => companyEmployee.company,
+  )
+  companyEmployee: CompanyEmployee[];
 }

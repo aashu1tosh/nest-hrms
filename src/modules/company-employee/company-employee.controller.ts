@@ -27,7 +27,7 @@ import { CompanyEmployeeService } from './service/company-employee.service';
 @Authentication()
 @Authorization([Role.COMPANY_SUPER_ADMIN, Role.COMPANY_ADMIN])
 export class CompanyEmployeeController {
-  constructor(private companyEmployeeService: CompanyEmployeeService) { }
+  constructor(private companyEmployeeService: CompanyEmployeeService) {}
 
   @Post()
   @ApiMessage(Message.created)

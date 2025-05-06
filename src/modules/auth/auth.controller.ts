@@ -27,7 +27,7 @@ export class AuthController {
   constructor(
     private authService: AuthService,
     private configService: ConfigService,
-  ) { }
+  ) {}
 
   @Get('/is-authorize-me')
   @ApiOperation({ summary: 'Check if I am authorized' })

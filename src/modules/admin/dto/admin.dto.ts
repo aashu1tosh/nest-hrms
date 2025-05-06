@@ -8,7 +8,10 @@ export class CreateAdminDTO {
   @IsNotBlank()
   firstName: string;
 
-  @ApiProperty({ example: 'Middle Name', description: 'Middle name of the user' })
+  @ApiProperty({
+    example: 'Middle Name',
+    description: 'Middle name of the user',
+  })
   @IsOptional()
   @IsString()
   middleName: string;
@@ -19,4 +22,4 @@ export class CreateAdminDTO {
   lastName: string;
 }
 
-export class UpdateAdminDTO extends CreateAdminDTO { }
+export class UpdateAdminDTO extends CreateAdminDTO {}

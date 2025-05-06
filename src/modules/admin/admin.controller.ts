@@ -1,4 +1,12 @@
-import { Body, Controller, DefaultValuePipe, Get, Param, ParseIntPipe, Patch } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  DefaultValuePipe,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+} from '@nestjs/common';
 import { ApiMessage } from 'src/common/decorator/api-response.decorator';
 import { Authentication } from 'src/common/decorator/authentication.decorator';
 import { Authorization } from 'src/common/decorator/authorization.decorator';
@@ -11,15 +19,14 @@ import { AdminService } from './service/admin.service';
 @Authentication()
 @Authorization([Role.SUDO_ADMIN])
 export class AdminController {
-  constructor(
-    private readonly adminService: AdminService,
-  ) { }
+  constructor(private readonly adminService: AdminService) {}
 
   @Patch(':id')
   @ApiMessage(Message.updated)
   async update(
     @Param('id') id: string,
-    @Body() updateAdminDTO: UpdateAdminDTO) {
+    @Body() updateAdminDTO: UpdateAdminDTO,
+  ) {
     await this.adminService.update(id, updateAdminDTO);
   }
 
@@ -27,7 +34,7 @@ export class AdminController {
   @ApiMessage(Message.fetched)
   async getById(@Param('id') id: string) {
     const admin = await this.adminService.getById(id);
-    return admin
+    return admin;
   }
 
   @Get()

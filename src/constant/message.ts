@@ -15,7 +15,7 @@ export const Message = {
   error: 'Error occurred',
   notAuthorized: 'You are not authorized',
   tokenExpired: 'Token expired, Please sign in again',
-  accessTokenExpired: "TOKEN_EXPIRED",
+  accessTokenExpired: 'TOKEN_EXPIRED',
   fetched: 'Successfully fetched data',
   isBlocked: 'This account is blocked',
   isUnBlocked: 'This account is unblocked',

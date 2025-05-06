@@ -29,7 +29,7 @@ import { WorklogModule } from './modules/worklog/worklog.module';
     CompanyAdminModule,
     CompanyEmployeeModule,
     WorklogModule,
-    LoggerModule
+    LoggerModule,
   ],
   controllers: [],
   providers: [
@@ -50,4 +50,4 @@ import { WorklogModule } from './modules/worklog/worklog.module';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}
