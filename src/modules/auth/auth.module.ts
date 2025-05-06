@@ -26,7 +26,7 @@ import { HashingService } from './service/hashing/hashing.service';
       inject: [ConfigService],
     }),
 
-    // Refresh token JWT module (opt)
+    // Refresh token JWT module
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (cs: ConfigService) => ({
