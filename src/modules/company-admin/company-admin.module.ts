@@ -8,9 +8,11 @@ import { CompanyAdminService } from './service/company-admin.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([CompanyAdmin]), AuthModule, CompanyModule
+    TypeOrmModule.forFeature([CompanyAdmin]),
+    AuthModule,
+    CompanyModule,
   ],
   controllers: [CompanyAdminController],
-  providers: [CompanyAdminService]
+  providers: [CompanyAdminService],
 })
-export class CompanyAdminModule { }
+export class CompanyAdminModule {}

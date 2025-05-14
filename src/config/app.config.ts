@@ -1,11 +1,11 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import { AppModule } from 'src/app.module';
 import { CustomLoggerService } from 'src/modules/logger/service/logger.service';
-// import { GlobalExceptionFilter } from 'src/common/middleware/http-exception.middleware';
 
 export async function createApp(): Promise<INestApplication> {
   const app = await NestFactory.create(AppModule);
@@ -40,6 +40,15 @@ export async function createApp(): Promise<INestApplication> {
 
   app.setGlobalPrefix('api/v1');
 
+  const config = new DocumentBuilder()
+    .setTitle('My API')
+    .setDescription('API documentation')
+    .setVersion('1.0')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api-docs/v1', app, document);
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -48,5 +57,8 @@ export async function createApp(): Promise<INestApplication> {
     }),
   );
 
+  logger.log(
+    `CORS enabled for origins: ${allowedOrigins.join(', ') || 'none specified, defaulting to *'}`,
+  );
   return app;
 }

@@ -5,18 +5,14 @@ import { typeOrmConfigAsync } from 'src/config/orm.config';
 import { AuthModule } from 'src/modules/auth/auth.module';
 import { AdminSeederService } from './service/admin.service';
 
-
 @Module({
-
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync(typeOrmConfigAsync),
-    AuthModule
+    AuthModule,
   ],
   providers: [AdminSeederService],
-
-
 })
-export class AdminSeederModule { }
+export class AdminSeederModule {}

@@ -10,6 +10,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import { ApiMessage } from 'src/common/decorator/api-response.decorator';
 import { Authentication } from 'src/common/decorator/authentication.decorator';
@@ -20,6 +21,7 @@ import { Message } from 'src/constant/message';
 import { CreateAuthAdminDTO, LoginDTO } from './dto/auth.dto';
 import { AuthService } from './service/auth.service';
 
+@ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -28,6 +30,7 @@ export class AuthController {
   ) {}
 
   @Get('/is-authorize-me')
+  @ApiOperation({ summary: 'Check if I am authorized' })
   @Authentication()
   async isAuthorizeMe(@User('id') userId: string) {
     return this.authService.me(userId);
@@ -64,6 +67,8 @@ export class AuthController {
   }
 
   @Post('/register')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Register an ADMIN (Only allowed by sudo admin)' })
   @Authentication()
   @Authorization([Role.SUDO_ADMIN])
   @ApiMessage(Message.created)
@@ -73,6 +78,8 @@ export class AuthController {
 
   @Post('/refresh-token')
   @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Refresh Token' })
   @ApiMessage('Authentication token refreshed successfully')
   refreshToken(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const refreshToken = req.cookies.refreshToken as string;
@@ -102,6 +109,7 @@ export class AuthController {
 
   @Post('/logout')
   @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
   @Authentication()
   @ApiMessage(Message.logoutSuccessfully)
   logout(@Res({ passthrough: true }) res: Response) {

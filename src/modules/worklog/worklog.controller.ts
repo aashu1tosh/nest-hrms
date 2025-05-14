@@ -23,7 +23,7 @@ import { WorklogService } from './service/worklog.service';
 @Controller('worklog')
 @Authentication()
 export class WorklogController {
-  constructor(private worklogService: WorklogService) { }
+  constructor(private worklogService: WorklogService) {}
 
   @Post()
   @Authorization([Role.COMPANY_EMPLOYEE])

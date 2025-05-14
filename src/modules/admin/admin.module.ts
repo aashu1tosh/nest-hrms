@@ -6,9 +6,9 @@ import { Admin } from './entity/admin.entity';
 import { AdminService } from './service/admin.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Admin]), forwardRef(() => AuthModule),],
+  imports: [TypeOrmModule.forFeature([Admin]), forwardRef(() => AuthModule)],
   providers: [AdminService],
   controllers: [AdminController],
   exports: [AdminService],
 })
-export class AdminModule { }
+export class AdminModule {}

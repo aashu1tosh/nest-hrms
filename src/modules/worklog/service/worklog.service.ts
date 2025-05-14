@@ -17,7 +17,7 @@ export class WorklogService {
   constructor(
     @InjectRepository(Worklog) private worklogRepo: Repository<Worklog>,
     private companyEmployeeService: CompanyEmployeeService,
-  ) { }
+  ) {}
 
   async create({
     data,
