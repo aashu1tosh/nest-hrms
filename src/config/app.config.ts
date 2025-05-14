@@ -57,5 +57,8 @@ export async function createApp(): Promise<INestApplication> {
     }),
   );
 
+  logger.log(
+    `CORS enabled for origins: ${allowedOrigins.join(', ') || 'none specified, defaulting to *'}`,
+  );
   return app;
 }
